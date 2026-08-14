@@ -1,5 +1,6 @@
 package com.moondiagnostic.app
 
+import android.app.Activity
 import android.os.Bundle
 import android.graphics.Color
 import android.graphics.Typeface
@@ -8,9 +9,8 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : Activity() {
 
     private fun text(
         value: String,
@@ -25,12 +25,11 @@ class MainActivity : AppCompatActivity() {
         t.textSize = size
         t.setTextColor(color)
         t.gravity = Gravity.CENTER
+        t.setPadding(12, 12, 12, 12)
 
         if (bold) {
             t.setTypeface(null, Typeface.BOLD)
         }
-
-        t.setPadding(12, 12, 12, 12)
 
         return t
     }
@@ -83,16 +82,9 @@ class MainActivity : AppCompatActivity() {
             Color.rgb(238, 247, 255)
         )
 
-        root.setPadding(
-            18,
-            20,
-            18,
-            10
-        )
+        root.setPadding(18, 20, 18, 10)
 
-        // =========================
-        // HEADER
-        // =========================
+        // Header
 
         val header = LinearLayout(this)
 
@@ -133,10 +125,6 @@ class MainActivity : AppCompatActivity() {
             )
         )
 
-        // =========================
-        // ADMIN
-        // =========================
-
         root.addView(
             text(
                 "স্বাগতম, Admin",
@@ -146,9 +134,7 @@ class MainActivity : AppCompatActivity() {
             )
         )
 
-        // =========================
-        // STATISTICS 1
-        // =========================
+        // Statistics
 
         val stats = LinearLayout(this)
 
@@ -184,10 +170,6 @@ class MainActivity : AppCompatActivity() {
 
         root.addView(stats)
 
-        // =========================
-        // STATISTICS 2
-        // =========================
-
         val stats2 = LinearLayout(this)
 
         stats2.orientation = LinearLayout.HORIZONTAL
@@ -222,10 +204,6 @@ class MainActivity : AppCompatActivity() {
 
         root.addView(stats2)
 
-        // =========================
-        // QUICK ACTION
-        // =========================
-
         root.addView(
             text(
                 "দ্রুত অ্যাকশন",
@@ -235,47 +213,31 @@ class MainActivity : AppCompatActivity() {
             )
         )
 
-        // =========================
-        // FOUR BUTTONS
-        // =========================
+        // Buttons
 
         val actions = LinearLayout(this)
 
         actions.orientation = LinearLayout.HORIZONTAL
 
         actions.addView(
-            button(
-                "📋",
-                "টোটাল সিরিয়াল"
-            )
+            button("📋", "টোটাল সিরিয়াল")
         )
 
         actions.addView(
-            button(
-                "➕",
-                "অ্যাড সিরিয়াল"
-            )
+            button("➕", "অ্যাড সিরিয়াল")
         )
 
         actions.addView(
-            button(
-                "👨‍⚕️",
-                "অ্যাড ডাক্তার"
-            )
+            button("👨‍⚕️", "অ্যাড ডাক্তার")
         )
 
         actions.addView(
-            button(
-                "👤",
-                "অ্যাড কেয়ার অফ"
-            )
+            button("👤", "অ্যাড কেয়ার অফ")
         )
 
         root.addView(actions)
 
-        // =========================
-        // DOCTOR / CARE VIEW
-        // =========================
+        // Doctor wise
 
         root.addView(
             text(
@@ -289,10 +251,11 @@ class MainActivity : AppCompatActivity() {
         root.addView(
             text(
                 "ডাক্তার নির্বাচন করে তার সিরিয়ালগুলো দেখা যাবে",
-                14f,
-                Color.DKGRAY
+                14f
             )
         )
+
+        // Care wise
 
         root.addView(
             text(
@@ -306,14 +269,9 @@ class MainActivity : AppCompatActivity() {
         root.addView(
             text(
                 "কেয়ার অফ নির্বাচন করে সংশ্লিষ্ট সিরিয়ালগুলো দেখা যাবে",
-                14f,
-                Color.DKGRAY
+                14f
             )
         )
-
-        // =========================
-        // FOOTER
-        // =========================
 
         root.addView(
             text(
