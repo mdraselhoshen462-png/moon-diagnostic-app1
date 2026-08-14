@@ -7,6 +7,7 @@ import android.view.Gravity
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
@@ -17,12 +18,17 @@ class MainActivity : AppCompatActivity() {
         color: Int = Color.DKGRAY,
         bold: Boolean = false
     ): TextView {
+
         val t = TextView(this)
+
         t.text = value
         t.textSize = size
         t.setTextColor(color)
         t.gravity = Gravity.CENTER
-        if (bold) t.setTypeface(null, Typeface.BOLD)
+
+        if (bold) {
+            t.setTypeface(null, Typeface.BOLD)
+        }
 
         t.setPadding(12, 12, 12, 12)
 
@@ -31,10 +37,15 @@ class MainActivity : AppCompatActivity() {
 
     private fun button(
         icon: String,
-        title: String,
-        color: Int
+        title: String
     ): TextView {
-        val b = text("$icon\n$title", 15f, Color.DKGRAY, true)
+
+        val b = text(
+            "$icon\n$title",
+            15f,
+            Color.DKGRAY,
+            true
+        )
 
         b.setBackgroundColor(Color.WHITE)
 
@@ -45,13 +56,15 @@ class MainActivity : AppCompatActivity() {
         )
 
         params.setMargins(8, 8, 8, 8)
+
         b.layoutParams = params
 
         b.setOnClickListener {
-            android.widget.Toast.makeText(
+
+            Toast.makeText(
                 this,
                 "$title নির্বাচন করা হয়েছে",
-                android.widget.Toast.LENGTH_SHORT
+                Toast.LENGTH_SHORT
             ).show()
         }
 
@@ -59,15 +72,30 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
 
         val root = LinearLayout(this)
-        root.orientation = LinearLayout.VERTICAL
-        root.setBackgroundColor(Color.rgb(238, 247, 255))
-        root.setPadding(18, 20, 18, 10)
 
-        // Header
+        root.orientation = LinearLayout.VERTICAL
+
+        root.setBackgroundColor(
+            Color.rgb(238, 247, 255)
+        )
+
+        root.setPadding(
+            18,
+            20,
+            18,
+            10
+        )
+
+        // =========================
+        // HEADER
+        // =========================
+
         val header = LinearLayout(this)
+
         header.orientation = LinearLayout.VERTICAL
         header.gravity = Gravity.CENTER
 
@@ -93,8 +121,7 @@ class MainActivity : AppCompatActivity() {
             text(
                 "সঠিক নির্ণয়, সুস্থ জীবনের প্রত্যয়",
                 15f,
-                Color.rgb(30, 80, 130),
-                false
+                Color.rgb(30, 80, 130)
             )
         )
 
@@ -106,7 +133,10 @@ class MainActivity : AppCompatActivity() {
             )
         )
 
-        // Admin
+        // =========================
+        // ADMIN
+        // =========================
+
         root.addView(
             text(
                 "স্বাগতম, Admin",
@@ -116,18 +146,26 @@ class MainActivity : AppCompatActivity() {
             )
         )
 
-        // Statistics
+        // =========================
+        // STATISTICS 1
+        // =========================
+
         val stats = LinearLayout(this)
+
         stats.orientation = LinearLayout.HORIZONTAL
 
         stats.addView(
             text(
-                "📅\nআজকের তারিখ\n১০ মে, ২০২৪",
+                "📅\nআজকের তারিখ\nআজ",
                 14f,
                 Color.DKGRAY,
                 true
             ),
-            LinearLayout.LayoutParams(0, 150, 1f)
+            LinearLayout.LayoutParams(
+                0,
+                150,
+                1f
+            )
         )
 
         stats.addView(
@@ -137,12 +175,21 @@ class MainActivity : AppCompatActivity() {
                 Color.DKGRAY,
                 true
             ),
-            LinearLayout.LayoutParams(0, 150, 1f)
+            LinearLayout.LayoutParams(
+                0,
+                150,
+                1f
+            )
         )
 
         root.addView(stats)
 
+        // =========================
+        // STATISTICS 2
+        // =========================
+
         val stats2 = LinearLayout(this)
+
         stats2.orientation = LinearLayout.HORIZONTAL
 
         stats2.addView(
@@ -152,7 +199,11 @@ class MainActivity : AppCompatActivity() {
                 Color.DKGRAY,
                 true
             ),
-            LinearLayout.LayoutParams(0, 150, 1f)
+            LinearLayout.LayoutParams(
+                0,
+                150,
+                1f
+            )
         )
 
         stats2.addView(
@@ -162,12 +213,19 @@ class MainActivity : AppCompatActivity() {
                 Color.DKGRAY,
                 true
             ),
-            LinearLayout.LayoutParams(0, 150, 1f)
+            LinearLayout.LayoutParams(
+                0,
+                150,
+                1f
+            )
         )
 
         root.addView(stats2)
 
-        // Quick Actions title
+        // =========================
+        // QUICK ACTION
+        // =========================
+
         root.addView(
             text(
                 "দ্রুত অ্যাকশন",
@@ -177,35 +235,91 @@ class MainActivity : AppCompatActivity() {
             )
         )
 
-        // Four buttons
+        // =========================
+        // FOUR BUTTONS
+        // =========================
+
         val actions = LinearLayout(this)
+
         actions.orientation = LinearLayout.HORIZONTAL
 
         actions.addView(
-            button("📋", "টোটাল সিরিয়াল", Color.BLUE)
+            button(
+                "📋",
+                "টোটাল সিরিয়াল"
+            )
         )
 
         actions.addView(
-            button("➕", "অ্যাড সিরিয়াল", Color.GREEN)
+            button(
+                "➕",
+                "অ্যাড সিরিয়াল"
+            )
         )
 
         actions.addView(
-            button("👨‍⚕️", "অ্যাড ডাক্তার", Color.ORANGE)
+            button(
+                "👨‍⚕️",
+                "অ্যাড ডাক্তার"
+            )
         )
 
         actions.addView(
-            button("👤", "অ্যাড কেয়ার অফ", Color.MAGENTA)
+            button(
+                "👤",
+                "অ্যাড কেয়ার অফ"
+            )
         )
 
         root.addView(actions)
 
-        // Footer
+        // =========================
+        // DOCTOR / CARE VIEW
+        // =========================
+
+        root.addView(
+            text(
+                "ডাক্তার ওয়াইজ সিরিয়াল",
+                19f,
+                Color.rgb(20, 70, 120),
+                true
+            )
+        )
+
+        root.addView(
+            text(
+                "ডাক্তার নির্বাচন করে তার সিরিয়ালগুলো দেখা যাবে",
+                14f,
+                Color.DKGRAY
+            )
+        )
+
+        root.addView(
+            text(
+                "কেয়ার ওয়াইজ সিরিয়াল",
+                19f,
+                Color.rgb(20, 70, 120),
+                true
+            )
+        )
+
+        root.addView(
+            text(
+                "কেয়ার অফ নির্বাচন করে সংশ্লিষ্ট সিরিয়ালগুলো দেখা যাবে",
+                14f,
+                Color.DKGRAY
+            )
+        )
+
+        // =========================
+        // FOOTER
+        // =========================
+
         root.addView(
             text(
                 "\nমুন ডায়াগনস্টিক সেন্টার\nআপনার বিশ্বস্ত স্বাস্থ্যসেবা কেন্দ্র",
                 14f,
-                Color.GRAY,
-                false
+                Color.GRAY
             )
         )
 
