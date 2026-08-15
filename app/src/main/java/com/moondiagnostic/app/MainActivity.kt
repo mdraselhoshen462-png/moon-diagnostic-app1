@@ -4,27 +4,30 @@ import android.app.Activity
 import android.os.Bundle
 import android.graphics.Color
 import android.graphics.Typeface
+import android.graphics.drawable.GradientDrawable
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.LinkedHashMap
 
 class MainActivity : Activity() {
 
-    private lateinit var root: LinearLayout
+    private val BG = Color.rgb(239, 248, 255)
+    private val BLUE = Color.rgb(25, 82, 140)
+    private val DARK = Color.rgb(45, 45, 45)
+    private val WHITE = Color.WHITE
+    private val GREEN = Color.rgb(20, 130, 115)
+    private val RED = Color.rgb(190, 55, 55)
 
-    private val PREF = "MDC_APP"
+    private val users = LinkedHashMap<String, UserAccount>()
 
-    private val users = mutableListOf(
-        User("admin", "admin123", "Admin"),
-        User("operator", "operator123", "Operator"),
-        User("user", "user123", "User")
-    )
+    private var currentUsername = ""
+    private var currentRole = ""
 
-    data class User(
-        var username: String,
+    data class UserAccount(
         var password: String,
         var role: String
     )
@@ -32,308 +35,107 @@ class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val savedUser = getSharedPreferences(PREF, MODE_PRIVATE)
-            .getString("logged_user", null)
+        // Default Admin
+        users["admin"] = UserAccount("admin123", "Admin")
 
-        val savedRole = getSharedPreferences(PREF, MODE_PRIVATE)
-            .getString("logged_role", null)
-
-        if (savedUser != null && savedRole != null) {
-            showDashboard(savedUser, savedRole)
-        } else {
-            showLogin()
-        }
+        showLogin()
     }
 
-    // ---------------------------------------------------------
-    // COMMON TEXT
-    // ---------------------------------------------------------
-
-    private fun makeText(
-        value: String,
-        size: Float,
-        color: Int = Color.DKGRAY,
-        bold: Boolean = false
-    ): TextView {
-
-        val t = TextView(this)
-
-        t.text = value
-        t.textSize = size
-        t.setTextColor(color)
-        t.gravity = Gravity.CENTER
-        t.setPadding(12, 12, 12, 12)
-
-        if (bold) {
-            t.setTypeface(null, Typeface.BOLD)
-        }
-
-        return t
-    }
-
-    private fun makeEditText(
-        hint: String,
-        password: Boolean = false
-    ): EditText {
-
-        val e = EditText(this)
-
-        e.hint = hint
-        e.textSize = 16f
-        e.setTextColor(Color.DKGRAY)
-        e.setHintTextColor(Color.GRAY)
-        e.setPadding(18, 10, 18, 10)
-
-        if (password) {
-            e.inputType =
-                android.text.InputType.TYPE_CLASS_TEXT or
-                        android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD
-        }
-
-        e.background = android.graphics.drawable.GradientDrawable().apply {
-            setColor(Color.WHITE)
-            setStroke(2, Color.rgb(20, 130, 120))
-            cornerRadius = 12f
-        }
-
-        val params = LinearLayout.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            60
-        )
-
-        params.setMargins(20, 8, 20, 8)
-
-        e.layoutParams = params
-
-        return e
-    }
-
-    private fun makeButton(
-        title: String,
-        background: Int = Color.rgb(20, 100, 150)
-    ): Button {
-
-        val b = Button(this)
-
-        b.text = title
-        b.textSize = 16f
-        b.setTextColor(Color.WHITE)
-        b.setTypeface(null, Typeface.BOLD)
-        b.setBackgroundColor(background)
-
-        val params = LinearLayout.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            58
-        )
-
-        params.setMargins(20, 8, 20, 8)
-
-        b.layoutParams = params
-
-        return b
-    }
-
-    // ---------------------------------------------------------
-    // BACKGROUND
-    // ---------------------------------------------------------
-
-    private fun createRoot(): LinearLayout {
-
-        val layout = LinearLayout(this)
-
-        layout.orientation = LinearLayout.VERTICAL
-        layout.gravity = Gravity.CENTER_HORIZONTAL
-
-        layout.setBackgroundColor(
-            Color.rgb(238, 247, 255)
-        )
-
-        layout.setPadding(20, 20, 20, 20)
-
-        return layout
-    }
-
-    // ---------------------------------------------------------
-    // LOGIN PAGE
-    // ---------------------------------------------------------
+    // --------------------------------------------------
+    // LOGIN
+    // --------------------------------------------------
 
     private fun showLogin() {
 
-        root = createRoot()
+        val root = ScrollView(this)
 
-        val scroll = ScrollView(this)
+        root.setBackgroundColor(BG)
 
-        val content = LinearLayout(this)
+        val box = LinearLayout(this)
+        box.orientation = LinearLayout.VERTICAL
+        box.gravity = Gravity.CENTER_HORIZONTAL
+        box.setPadding(25, 80, 25, 40)
 
-        content.orientation = LinearLayout.VERTICAL
-        content.gravity = Gravity.CENTER_HORIZONTAL
-
-        content.setPadding(0, 80, 0, 30)
-
-        // MDC LOGO
-
-        content.addView(
-            makeText(
+        box.addView(
+            label(
                 "MDC",
-                52f,
-                Color.rgb(20, 75, 135),
+                48f,
+                BLUE,
                 true
-            ),
-            LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                90
             )
         )
 
-        content.addView(
-            makeText(
+        box.addView(
+            label(
                 "মুন ডায়াগনস্টিক সেন্টার",
-                24f,
-                Color.rgb(10, 75, 130),
+                25f,
+                BLUE,
                 true
             )
         )
 
-        content.addView(
-            makeText(
+        box.addView(
+            label(
                 "লগইন করুন",
-                24f,
-                Color.rgb(20, 70, 120),
+                23f,
+                DARK,
                 true
             )
         )
 
-        content.addView(
-            makeText(
-                "অনুমোদিত Username ও Password দিয়ে প্রবেশ করুন",
-                14f,
-                Color.DKGRAY
-            )
+        addSpace(box, 25)
+
+        val username = EditText(this)
+        username.hint = "Username"
+        username.textSize = 17f
+        username.setSingleLine(true)
+        username.setPadding(20, 15, 20, 15)
+
+        box.addView(
+            username,
+            matchParams(60)
         )
 
-        // USERNAME
+        addSpace(box, 12)
 
-        val username = makeEditText(
-            "Username"
+        val password = EditText(this)
+        password.hint = "Password"
+        password.textSize = 17f
+        password.inputType =
+            android.text.InputType.TYPE_CLASS_TEXT or
+                    android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD
+
+        password.setSingleLine(true)
+        password.setPadding(20, 15, 20, 15)
+
+        box.addView(
+            password,
+            matchParams(60)
         )
 
-        content.addView(username)
+        addSpace(box, 18)
 
-        // PASSWORD
-
-        val password = makeEditText(
-            "Password",
-            true
+        val login = actionButton(
+            "🔐  লগইন",
+            BLUE
         )
 
-        content.addView(password)
-
-        // ROLE
-
-        content.addView(
-            makeText(
-                "Role নির্বাচন করুন",
-                16f,
-                Color.DKGRAY,
-                true
-            )
+        box.addView(
+            login,
+            matchParams(58)
         )
 
-        val roleSpinner = Spinner(this)
+        login.setOnClickListener {
 
-        val roles = arrayOf(
-            "Admin",
-            "Operator",
-            "User"
-        )
+            val u = username.text.toString().trim()
+            val p = password.text.toString()
 
-        val adapter = ArrayAdapter(
-            this,
-            android.R.layout.simple_spinner_dropdown_item,
-            roles
-        )
+            val account = users[u]
 
-        roleSpinner.adapter = adapter
+            if (account != null && account.password == p) {
 
-        val spinnerParams = LinearLayout.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            60
-        )
-
-        spinnerParams.setMargins(20, 5, 20, 10)
-
-        roleSpinner.layoutParams = spinnerParams
-
-        content.addView(roleSpinner)
-
-        // LOGIN BUTTON
-
-        val loginButton = makeButton(
-            "🔐  লগইন করুন",
-            Color.rgb(15, 120, 110)
-        )
-
-        content.addView(loginButton)
-
-        // LOGIN ACTION
-
-        loginButton.setOnClickListener {
-
-            val enteredUsername =
-                username.text.toString().trim()
-
-            val enteredPassword =
-                password.text.toString()
-
-            val selectedRole =
-                roleSpinner.selectedItem.toString()
-
-            if (enteredUsername.isEmpty()) {
-
-                Toast.makeText(
-                    this,
-                    "Username লিখুন",
-                    Toast.LENGTH_SHORT
-                ).show()
-
-                return@setOnClickListener
-            }
-
-            if (enteredPassword.isEmpty()) {
-
-                Toast.makeText(
-                    this,
-                    "Password লিখুন",
-                    Toast.LENGTH_SHORT
-                ).show()
-
-                return@setOnClickListener
-            }
-
-            val foundUser = users.find {
-
-                it.username == enteredUsername &&
-                        it.password == enteredPassword &&
-                        it.role == selectedRole
-
-            }
-
-            if (foundUser != null) {
-
-                getSharedPreferences(
-                    PREF,
-                    MODE_PRIVATE
-                )
-                    .edit()
-                    .putString(
-                        "logged_user",
-                        foundUser.username
-                    )
-                    .putString(
-                        "logged_role",
-                        foundUser.role
-                    )
-                    .apply()
+                currentUsername = u
+                currentRole = account.role
 
                 Toast.makeText(
                     this,
@@ -341,428 +143,371 @@ class MainActivity : Activity() {
                     Toast.LENGTH_SHORT
                 ).show()
 
-                showDashboard(
-                    foundUser.username,
-                    foundUser.role
-                )
+                showDashboard()
 
             } else {
 
                 Toast.makeText(
                     this,
-                    "Username, Password অথবা Role ভুল",
+                    "Username অথবা Password ভুল",
                     Toast.LENGTH_LONG
                 ).show()
             }
         }
 
-        // FOOTER
+        addSpace(box, 35)
 
-        content.addView(
-            makeText(
-                "\nMoon Diagnostic Center\nসঠিক নির্ণয়, সুস্থ জীবনের প্রত্যয়",
+        box.addView(
+            label(
+                "Moon Diagnostic Center",
+                15f,
+                Color.GRAY,
+                false
+            )
+        )
+
+        box.addView(
+            label(
+                "সঠিক নির্ণয়, সুস্থ জীবনের প্রত্যয়",
                 14f,
-                Color.GRAY
+                Color.GRAY,
+                false
             )
         )
 
-        scroll.addView(content)
-
-        root.addView(
-            scroll,
-            LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
-            )
-        )
+        root.addView(box)
 
         setContentView(root)
     }
 
-    // ---------------------------------------------------------
+    // --------------------------------------------------
     // DASHBOARD
-    // ---------------------------------------------------------
+    // --------------------------------------------------
 
-    private fun showDashboard(
-        username: String,
-        role: String
-    ) {
-
-        root = createRoot()
+    private fun showDashboard() {
 
         val scroll = ScrollView(this)
+        scroll.setBackgroundColor(BG)
 
-        val content = LinearLayout(this)
+        val root = LinearLayout(this)
+        root.orientation = LinearLayout.VERTICAL
+        root.setPadding(18, 30, 18, 40)
 
-        content.orientation = LinearLayout.VERTICAL
-        content.gravity = Gravity.CENTER_HORIZONTAL
-
-        // HEADER
-
-        content.addView(
-            makeText(
+        root.addView(
+            label(
                 "MDC",
-                44f,
-                Color.rgb(20, 70, 130),
+                42f,
+                BLUE,
                 true
             )
         )
 
-        content.addView(
-            makeText(
-                "স্বাগতম, $username",
-                19f,
-                Color.DKGRAY,
+        root.addView(
+            label(
+                "স্বাগতম, $currentUsername",
+                20f,
+                DARK,
                 true
             )
         )
 
-        content.addView(
-            makeText(
-                "Role: $role",
-                15f,
-                Color.rgb(20, 100, 130),
+        root.addView(
+            label(
+                "Role: $currentRole",
+                16f,
+                GREEN,
                 true
             )
         )
 
-        // LOGOUT
+        addSpace(root, 15)
 
-        val logoutButton = makeButton(
-            "🚪  লগআউট",
-            Color.rgb(190, 60, 60)
+        val logout = actionButton(
+            "🚪  Logout",
+            RED
         )
 
-        content.addView(logoutButton)
+        root.addView(
+            logout,
+            matchParams(52)
+        )
 
-        logoutButton.setOnClickListener {
+        logout.setOnClickListener {
 
-            getSharedPreferences(
-                PREF,
-                MODE_PRIVATE
-            )
-                .edit()
-                .clear()
-                .apply()
+            currentUsername = ""
+            currentRole = ""
 
             showLogin()
         }
 
-        // DATE
+        addSpace(root, 18)
 
         val date = SimpleDateFormat(
             "dd-MM-yyyy",
             Locale.getDefault()
         ).format(Date())
 
-        content.addView(
-            makeText(
+        root.addView(
+            label(
                 "📅\nআজকের তারিখ\n$date",
-                15f,
-                Color.DKGRAY,
+                16f,
+                DARK,
                 true
             )
         )
 
-        // STATISTICS
+        addSpace(root, 10)
 
         val stats = LinearLayout(this)
-
         stats.orientation = LinearLayout.HORIZONTAL
 
         stats.addView(
-            makeStat(
-                "👥",
-                "মোট সিরিয়াল",
-                "54 জন"
-            )
+            statCard("👥", "মোট সিরিয়াল", "54 জন"),
+            weightParams()
         )
 
         stats.addView(
-            makeStat(
-                "⏳",
-                "অপেক্ষমাণ",
-                "28 জন"
-            )
+            statCard("⏳", "অপেক্ষমাণ", "28 জন"),
+            weightParams()
         )
 
-        content.addView(stats)
+        root.addView(stats)
 
         val stats2 = LinearLayout(this)
-
         stats2.orientation = LinearLayout.HORIZONTAL
 
         stats2.addView(
-            makeStat(
-                "✓",
-                "সম্পন্ন",
-                "26 জন"
-            )
+            statCard("✓", "সম্পন্ন", "26 জন"),
+            weightParams()
         )
 
         stats2.addView(
-            makeStat(
-                "❌",
-                "বাতিল",
-                "0 জন"
-            )
+            statCard("❌", "বাতিল", "0 জন"),
+            weightParams()
         )
 
-        content.addView(stats2)
+        root.addView(stats2)
 
-        // QUICK ACTION
+        addSpace(root, 15)
 
-        content.addView(
-            makeText(
+        root.addView(
+            label(
                 "দ্রুত অ্যাকশন",
-                22f,
-                Color.rgb(20, 70, 120),
+                24f,
+                BLUE,
                 true
             )
         )
 
-        val actions = LinearLayout(this)
-
-        actions.orientation = LinearLayout.VERTICAL
-
-        val totalButton =
-            makeButton("📋  টোটাল সিরিয়াল")
-
-        val serialButton =
-            makeButton("➕  অ্যাড সিরিয়াল")
-
-        val doctorButton =
-            makeButton("👨‍⚕️  অ্যাড ডাক্তার")
-
-        val careButton =
-            makeButton("👤  অ্যাড কেয়ার অফ")
-
-        actions.addView(totalButton)
-        actions.addView(serialButton)
-        actions.addView(doctorButton)
-        actions.addView(careButton)
-
-        content.addView(actions)
-
-        totalButton.setOnClickListener {
-
+        addAction(root, "📋  টোটাল সিরিয়াল") {
             Toast.makeText(
                 this,
-                "টোটাল সিরিয়াল নির্বাচন করা হয়েছে",
+                "টোটাল সিরিয়াল",
                 Toast.LENGTH_SHORT
             ).show()
         }
 
-        serialButton.setOnClickListener {
-
+        addAction(root, "➕  অ্যাড সিরিয়াল") {
             Toast.makeText(
                 this,
-                "অ্যাড সিরিয়াল নির্বাচন করা হয়েছে",
+                "অ্যাড সিরিয়াল",
                 Toast.LENGTH_SHORT
             ).show()
         }
 
-        doctorButton.setOnClickListener {
-
-            if (role == "Admin") {
-
-                Toast.makeText(
-                    this,
-                    "অ্যাড ডাক্তার - Admin Access",
-                    Toast.LENGTH_SHORT
-                ).show()
-
-            } else {
-
-                Toast.makeText(
-                    this,
-                    "এই কাজটি শুধুমাত্র Admin করতে পারবেন",
-                    Toast.LENGTH_LONG
-                ).show()
-            }
+        addAction(root, "👨‍⚕️  অ্যাড ডাক্তার") {
+            Toast.makeText(
+                this,
+                "অ্যাড ডাক্তার",
+                Toast.LENGTH_SHORT
+            ).show()
         }
 
-        careButton.setOnClickListener {
-
-            if (role == "Admin") {
-
-                Toast.makeText(
-                    this,
-                    "অ্যাড কেয়ার অফ - Admin Access",
-                    Toast.LENGTH_SHORT
-                ).show()
-
-            } else {
-
-                Toast.makeText(
-                    this,
-                    "এই কাজটি শুধুমাত্র Admin করতে পারবেন",
-                    Toast.LENGTH_LONG
-                ).show()
-            }
+        addAction(root, "👤  অ্যাড কেয়ার অফ") {
+            Toast.makeText(
+                this,
+                "অ্যাড কেয়ার অফ",
+                Toast.LENGTH_SHORT
+            ).show()
         }
 
-        // DOCTOR
+        addSpace(root, 15)
 
-        content.addView(
-            makeText(
+        root.addView(
+            label(
                 "ডাক্তার ওয়াইজ সিরিয়াল",
-                20f,
-                Color.rgb(20, 70, 120),
+                22f,
+                BLUE,
                 true
             )
         )
 
-        content.addView(
-            makeText(
+        root.addView(
+            label(
                 "ডাক্তার নির্বাচন করে তার সিরিয়ালগুলো দেখা যাবে",
-                14f
+                15f,
+                DARK,
+                false
             )
         )
 
-        // CARE OF
+        addSpace(root, 15)
 
-        content.addView(
-            makeText(
+        root.addView(
+            label(
                 "কেয়ার ওয়াইজ সিরিয়াল",
-                20f,
-                Color.rgb(20, 70, 120),
+                22f,
+                BLUE,
                 true
             )
         )
 
-        content.addView(
-            makeText(
+        root.addView(
+            label(
                 "কেয়ার অফ নির্বাচন করে সংশ্লিষ্ট সিরিয়ালগুলো দেখা যাবে",
-                14f
+                15f,
+                DARK,
+                false
             )
         )
 
-        // ADMIN PANEL
+        // Admin only
+        if (currentRole == "Admin") {
 
-        if (role == "Admin") {
+            addSpace(root, 20)
 
-            content.addView(
-                makeText(
+            root.addView(
+                label(
                     "👑 Admin Control Panel",
-                    21f,
-                    Color.rgb(20, 70, 120),
+                    23f,
+                    BLUE,
                     true
                 )
             )
 
-            val userManageButton =
-                makeButton(
-                    "👥  User / Operator Management",
-                    Color.rgb(90, 80, 150)
+            root.addView(
+                label(
+                    "User এবং Operator পরিচালনা করুন",
+                    15f,
+                    DARK,
+                    false
                 )
+            )
 
-            content.addView(userManageButton)
+            addSpace(root, 12)
 
-            userManageButton.setOnClickListener {
+            val adminButton = actionButton(
+                "⚙️  Admin Control Panel",
+                BLUE
+            )
 
-                showUserManagement()
+            root.addView(
+                adminButton,
+                matchParams(58)
+            )
+
+            adminButton.setOnClickListener {
+                showAdminPanel()
             }
         }
 
-        content.addView(
-            makeText(
-                "\nমুন ডায়াগনস্টিক সেন্টার\nআপনার বিশ্বস্ত স্বাস্থ্যসেবা কেন্দ্র",
-                14f,
-                Color.GRAY
-            )
-        )
-
-        scroll.addView(content)
+        addSpace(root, 30)
 
         root.addView(
-            scroll,
-            LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
-            )
-        )
-
-        setContentView(root)
-    }
-
-    // ---------------------------------------------------------
-    // STAT CARD
-    // ---------------------------------------------------------
-
-    private fun makeStat(
-        icon: String,
-        title: String,
-        value: String
-    ): TextView {
-
-        val t = makeText(
-            "$icon\n$title\n$value",
-            14f,
-            Color.DKGRAY,
-            true
-        )
-
-        val params = LinearLayout.LayoutParams(
-            0,
-            130,
-            1f
-        )
-
-        params.setMargins(8, 8, 8, 8)
-
-        t.layoutParams = params
-
-        t.setBackgroundColor(Color.WHITE)
-
-        return t
-    }
-
-    // ---------------------------------------------------------
-    // ADMIN USER MANAGEMENT
-    // ---------------------------------------------------------
-
-    private fun showUserManagement() {
-
-        root = createRoot()
-
-        val scroll = ScrollView(this)
-
-        val content = LinearLayout(this)
-
-        content.orientation = LinearLayout.VERTICAL
-
-        content.gravity = Gravity.CENTER_HORIZONTAL
-
-        content.addView(
-            makeText(
-                "👑 Admin Control Panel",
-                24f,
-                Color.rgb(20, 70, 120),
+            label(
+                "মুন ডায়াগনস্টিক সেন্টার",
+                15f,
+                Color.GRAY,
                 true
             )
         )
 
-        content.addView(
-            makeText(
-                "User এবং Operator তৈরি / মুছে ফেলুন",
-                15f,
-                Color.DKGRAY
+        root.addView(
+            label(
+                "আপনার বিশ্বস্ত স্বাস্থ্যসেবা কেন্দ্র",
+                14f,
+                Color.GRAY,
+                false
             )
         )
 
-        val username =
-            makeEditText("নতুন Username")
+        scroll.addView(root)
 
-        val password =
-            makeEditText("নতুন Password", true)
+        setContentView(scroll)
+    }
 
-        content.addView(username)
-        content.addView(password)
+    // --------------------------------------------------
+    // ADMIN PANEL
+    // --------------------------------------------------
+
+    private fun showAdminPanel() {
+
+        if (currentRole != "Admin") {
+            Toast.makeText(
+                this,
+                "শুধুমাত্র Admin এই পেজ ব্যবহার করতে পারবেন",
+                Toast.LENGTH_LONG
+            ).show()
+
+            return
+        }
+
+        val scroll = ScrollView(this)
+        scroll.setBackgroundColor(BG)
+
+        val root = LinearLayout(this)
+        root.orientation = LinearLayout.VERTICAL
+        root.setPadding(22, 35, 22, 40)
+
+        root.addView(
+            label(
+                "👑 Admin Control Panel",
+                25f,
+                BLUE,
+                true
+            )
+        )
+
+        root.addView(
+            label(
+                "User এবং Operator পরিচালনা করুন",
+                16f,
+                DARK,
+                false
+            )
+        )
+
+        addSpace(root, 20)
+
+        val username = EditText(this)
+        username.hint = "নতুন Username"
+        username.textSize = 17f
+        username.setSingleLine(true)
+        username.setPadding(18, 12, 18, 12)
+
+        root.addView(
+            username,
+            matchParams(58)
+        )
+
+        addSpace(root, 10)
+
+        val password = EditText(this)
+        password.hint = "নতুন Password"
+        password.textSize = 17f
+        password.setSingleLine(true)
+        password.setPadding(18, 12, 18, 12)
+
+        root.addView(
+            password,
+            matchParams(58)
+        )
+
+        addSpace(root, 12)
 
         val roleSpinner = Spinner(this)
 
-        val roleList = arrayOf(
+        val roles = arrayOf(
             "Operator",
             "User"
         )
@@ -771,220 +516,349 @@ class MainActivity : Activity() {
             ArrayAdapter(
                 this,
                 android.R.layout.simple_spinner_dropdown_item,
-                roleList
+                roles
             )
 
-        content.addView(roleSpinner)
+        root.addView(
+            roleSpinner,
+            matchParams(55)
+        )
 
-        val addButton =
-            makeButton(
-                "➕  নতুন User তৈরি করুন",
-                Color.rgb(15, 120, 110)
-            )
+        addSpace(root, 12)
 
-        content.addView(addButton)
+        val create = actionButton(
+            "➕  নতুন User / Operator তৈরি করুন",
+            GREEN
+        )
 
-        addButton.setOnClickListener {
+        root.addView(
+            create,
+            matchParams(58)
+        )
 
-            val newUsername =
-                username.text.toString().trim()
+        create.setOnClickListener {
 
-            val newPassword =
-                password.text.toString()
+            val u = username.text.toString().trim()
+            val p = password.text.toString()
+            val role = roleSpinner.selectedItem.toString()
 
-            val newRole =
-                roleSpinner.selectedItem.toString()
-
-            if (newUsername.isEmpty() ||
-                newPassword.isEmpty()
-            ) {
+            if (u.isEmpty() || p.isEmpty()) {
 
                 Toast.makeText(
                     this,
-                    "Username ও Password লিখুন",
+                    "Username এবং Password দিন",
                     Toast.LENGTH_SHORT
                 ).show()
 
                 return@setOnClickListener
             }
 
-            if (newUsername == "admin") {
+            if (users.containsKey(u)) {
 
                 Toast.makeText(
                     this,
-                    "এই Username ব্যবহার করা যাবে না",
-                    Toast.LENGTH_LONG
+                    "এই Username আগে থেকেই আছে",
+                    Toast.LENGTH_SHORT
                 ).show()
 
                 return@setOnClickListener
             }
 
-            val exists = users.any {
-                it.username == newUsername
-            }
+            users[u] = UserAccount(
+                p,
+                role
+            )
 
-            if (exists) {
+            username.text.clear()
+            password.text.clear()
 
-                Toast.makeText(
-                    this,
-                    "এই Username ইতিমধ্যে আছে",
-                    Toast.LENGTH_LONG
-                ).show()
+            Toast.makeText(
+                this,
+                "$role সফলভাবে তৈরি হয়েছে",
+                Toast.LENGTH_SHORT
+            ).show()
 
-            } else {
-
-                users.add(
-                    User(
-                        newUsername,
-                        newPassword,
-                        newRole
-                    )
-                )
-
-                username.text.clear()
-                password.text.clear()
-
-                Toast.makeText(
-                    this,
-                    "নতুন $newRole তৈরি হয়েছে",
-                    Toast.LENGTH_SHORT
-                ).show()
-
-                showUserManagement()
-            }
+            showAdminPanel()
         }
 
-        content.addView(
-            makeText(
+        addSpace(root, 25)
+
+        root.addView(
+            label(
                 "বর্তমান User / Operator",
-                20f,
-                Color.rgb(20, 70, 120),
+                22f,
+                BLUE,
                 true
             )
         )
 
-        for (u in users) {
+        users.forEach { (name, account) ->
 
-            if (u.role != "Admin") {
+            if (name != "admin") {
 
-                val row =
-                    LinearLayout(this)
+                val card = LinearLayout(this)
+                card.orientation = LinearLayout.VERTICAL
+                card.setPadding(18, 15, 18, 15)
 
-                row.orientation =
-                    LinearLayout.HORIZONTAL
-
-                row.gravity =
-                    Gravity.CENTER_VERTICAL
-
-                row.setPadding(
-                    10,
-                    5,
-                    10,
-                    5
+                card.background = rounded(
+                    WHITE,
+                    14
                 )
 
-                val info =
-                    makeText(
-                        "${u.username}   (${u.role})",
-                        16f,
-                        Color.DKGRAY,
-                        true
-                    )
-
-                val delete =
-                    Button(this)
-
-                delete.text = "মুছুন"
-
-                delete.setTextColor(
-                    Color.WHITE
+                val info = label(
+                    "👤  $name\nRole: ${account.role}",
+                    17f,
+                    DARK,
+                    true
                 )
 
-                delete.setBackgroundColor(
-                    Color.rgb(190, 60, 60)
+                card.addView(info)
+
+                addSpace(card, 8)
+
+                val delete = actionButton(
+                    "🗑️  Delete",
+                    RED
                 )
 
-                val infoParams =
-                    LinearLayout.LayoutParams(
-                        0,
-                        60,
-                        1f
-                    )
-
-                row.addView(
-                    info,
-                    infoParams
-                )
-
-                row.addView(
+                card.addView(
                     delete,
-                    LinearLayout.LayoutParams(
-                        100,
-                        55
-                    )
+                    matchParams(48)
                 )
 
                 delete.setOnClickListener {
 
-                    users.remove(u)
+                    users.remove(name)
 
                     Toast.makeText(
                         this,
-                        "${u.username} মুছে ফেলা হয়েছে",
+                        "$name মুছে ফেলা হয়েছে",
                         Toast.LENGTH_SHORT
                     ).show()
 
-                    showUserManagement()
+                    showAdminPanel()
                 }
 
-                content.addView(row)
+                val params =
+                    LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                    )
+
+                params.setMargins(0, 10, 0, 10)
+
+                root.addView(card, params)
             }
         }
 
-        val back =
-            makeButton(
-                "← Dashboard-এ ফিরে যান",
-                Color.rgb(80, 80, 80)
-            )
+        addSpace(root, 20)
 
-        content.addView(back)
+        val back = actionButton(
+            "← Dashboard-এ ফিরে যান",
+            BLUE
+        )
+
+        root.addView(
+            back,
+            matchParams(55)
+        )
 
         back.setOnClickListener {
+            showDashboard()
+        }
 
-            val savedUser =
-                getSharedPreferences(
-                    PREF,
-                    MODE_PRIVATE
-                ).getString(
-                    "logged_user",
-                    "admin"
-                )
+        scroll.addView(root)
 
-            val savedRole =
-                getSharedPreferences(
-                    PREF,
-                    MODE_PRIVATE
-                ).getString(
-                    "logged_role",
-                    "Admin"
-                )
+        setContentView(scroll)
+    }
 
-            showDashboard(
-                savedUser ?: "admin",
-                savedRole ?: "Admin"
+    // --------------------------------------------------
+    // UI HELPERS
+    // --------------------------------------------------
+
+    private fun label(
+        value: String,
+        size: Float,
+        color: Int,
+        bold: Boolean
+    ): TextView {
+
+        val t = TextView(this)
+
+        t.text = value
+        t.textSize = size
+        t.setTextColor(color)
+        t.gravity = Gravity.CENTER
+        t.setPadding(10, 8, 10, 8)
+
+        if (bold) {
+            t.setTypeface(
+                null,
+                Typeface.BOLD
             )
         }
 
-        scroll.addView(content)
+        return t
+    }
 
-        root.addView(
-            scroll,
-            LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
+    private fun actionButton(
+        title: String,
+        color: Int
+    ): TextView {
+
+        val b = TextView(this)
+
+        b.text = title
+        b.textSize = 16f
+        b.setTextColor(Color.WHITE)
+        b.gravity = Gravity.CENTER
+        b.setTypeface(null, Typeface.BOLD)
+        b.setPadding(15, 10, 15, 10)
+
+        b.background = rounded(
+            color,
+            12
+        )
+
+        return b
+    }
+
+    private fun statCard(
+        icon: String,
+        title: String,
+        value: String
+    ): LinearLayout {
+
+        val card = LinearLayout(this)
+
+        card.orientation =
+            LinearLayout.VERTICAL
+
+        card.gravity = Gravity.CENTER
+
+        card.setPadding(8, 12, 8, 12)
+
+        card.background = rounded(
+            WHITE,
+            12
+        )
+
+        card.addView(
+            label(
+                icon,
+                25f,
+                DARK,
+                false
             )
         )
 
-        setContentView(root)
+        card.addView(
+            label(
+                title,
+                16f,
+                DARK,
+                true
+            )
+        )
+
+        card.addView(
+            label(
+                value,
+                17f,
+                DARK,
+                true
+            )
+        )
+
+        val p =
+            LinearLayout.LayoutParams(
+                0,
+                125,
+                1f
+            )
+
+        p.setMargins(5, 5, 5, 5)
+
+        card.layoutParams = p
+
+        return card
+    }
+
+    private fun addAction(
+        root: LinearLayout,
+        title: String,
+        click: () -> Unit
+    ) {
+
+        val b = actionButton(
+            title,
+            BLUE
+        )
+
+        root.addView(
+            b,
+            matchParams(58)
+        )
+
+        b.setOnClickListener {
+            click()
+        }
+
+        addSpace(root, 8)
+    }
+
+    private fun rounded(
+        color: Int,
+        radius: Int
+    ): GradientDrawable {
+
+        val d = GradientDrawable()
+
+        d.setColor(color)
+        d.cornerRadius =
+            radius.toFloat()
+
+        d.setStroke(
+            1,
+            Color.rgb(220, 230, 240)
+        )
+
+        return d
+    }
+
+    private fun matchParams(
+        height: Int
+    ): LinearLayout.LayoutParams {
+
+        return LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            height
+        )
+    }
+
+    private fun weightParams():
+            LinearLayout.LayoutParams {
+
+        return LinearLayout.LayoutParams(
+            0,
+            125,
+            1f
+        )
+    }
+
+    private fun addSpace(
+        root: LinearLayout,
+        height: Int
+    ) {
+
+        val space = Space(this)
+
+        root.addView(
+            space,
+            LinearLayout.LayoutParams(
+                1,
+                height
+            )
+        )
     }
 }
