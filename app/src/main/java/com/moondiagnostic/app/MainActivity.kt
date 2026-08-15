@@ -329,7 +329,7 @@ class MainActivity : Activity() {
 
         root.addView(
             label(
-                "唳唳� 唳∴唳唳距唳ㄠΩ唰嵿唳苦 唳膏唳ㄠ唳熰唳�",
+                "মুন ডায়াগনস্টিক সেন্টার",
                 27f,
                 DARK_BLUE,
                 true
@@ -340,7 +340,7 @@ class MainActivity : Activity() {
 
         root.addView(
             label(
-                "唳膏唳苦 唳ㄠ唳班唳｀Ο唳�, 唳膏唳膏唳� 唳溹唳Θ唰囙Π 唳唳班Δ唰嵿Ο唳",
+                "সঠিক নির্ণয়, সুস্থ জীবনের প্রত্যয়",
                 14f,
                 GRAY
             )
@@ -374,7 +374,7 @@ class MainActivity : Activity() {
 
         card.addView(
             label(
-                "唳侧唳囙Θ 唳曕Π唰佮Θ",
+                "লগইন করুন",
                 29f,
                 DARK_BLUE,
                 true
@@ -384,11 +384,11 @@ class MainActivity : Activity() {
         card.addView(space(14))
 
         val username = input(
-            "唳囙唳溹唳班Θ唰囙Ξ"
+            "ইউজারনেম"
         )
 
         val password = input(
-            "唳唳膏唳唳距Π唰嵿Α",
+            "পাসওয়ার্ড",
             true
         )
 
@@ -399,7 +399,7 @@ class MainActivity : Activity() {
 
         card.addView(
             actionButton(
-                "馃攼   唳侧唳囙Θ",
+                "🔐   লগইন",
                 BLUE,
                 62
             ) {
@@ -415,7 +415,7 @@ class MainActivity : Activity() {
 
         root.addView(
             label(
-                "唳呧唳唳曕唳膏唳� 唳多唳о唳唳む唳� 唳呧Θ唰佮Ξ唰嬥Ζ唳苦Δ User / Operator / Admin-唳忇Π 唳溹Θ唰嵿Ο",
+                "অ্যাক্সেস শুধুমাত্র অনুমোদিত User / Operator / Admin-এর জন্য",
                 13f,
                 GRAY
             )
@@ -434,7 +434,7 @@ class MainActivity : Activity() {
 
         root.addView(
             label(
-                "唳嗋Κ唳ㄠ唳� 唳唳多唳Ω唰嵿Δ 唳膏唳唳膏唳ム唳Ω唰囙Μ唳� 唳曕唳ㄠ唳︵唳�",
+                "আপনার বিশ্বস্ত স্বাস্থ্যসেবা কেন্দ্র",
                 13f,
                 GRAY
             )
@@ -455,12 +455,12 @@ class MainActivity : Activity() {
     ) {
 
         if (username.isEmpty()) {
-            toast("Username 唳侧唳栢唳�")
+            toast("Username লিখুন")
             return
         }
 
         if (password.isEmpty()) {
-            toast("Password 唳侧唳栢唳�")
+            toast("Password লিখুন")
             return
         }
 
@@ -489,13 +489,13 @@ class MainActivity : Activity() {
                 .putString("current_role", savedRole)
                 .apply()
 
-            toast("唳膏Λ唳侧Ν唳距Μ唰� 唳侧唳囙Θ 唳灌Ο唳监唳涏")
+            toast("সফলভাবে লগইন হয়েছে")
 
             showDashboard()
 
         } else {
 
-            toast("Username 唳呧Ε唳 Password 唳唳�")
+            toast("Username অথবা Password ভুল")
         }
     }
 
@@ -524,7 +524,7 @@ class MainActivity : Activity() {
 
         root.addView(
             label(
-                "唳膏唳唳椸Δ唳�, $currentUsername",
+                "স্বাগতম, $currentUsername",
                 23f,
                 DARK,
                 true
@@ -546,7 +546,7 @@ class MainActivity : Activity() {
 
         root.addView(
             actionButton(
-                "馃毆   Logout",
+                "🚪   Logout",
                 RED,
                 58
             ) {
@@ -561,7 +561,7 @@ class MainActivity : Activity() {
 
         root.addView(
             label(
-                "唳嗋唳曕唳� 唳む唳班唳�",
+                "আজকের তারিখ",
                 21f,
                 DARK_BLUE,
                 true
@@ -594,18 +594,18 @@ class MainActivity : Activity() {
 
         stats1.addView(
             statCard(
-                "馃懃",
-                "唳唳� 唳膏唳班唳唳距Σ",
-                "${dashboardSerials.size} 唳溹Θ",
+                "👥",
+                "মোট সিরিয়াল",
+                "${dashboardSerials.size} জন",
                 BLUE
             )
         )
 
         stats1.addView(
             statCard(
-                "鈴�",
-                "唳呧Κ唰囙唰嵿Ψ唳唳�",
-                "${waitingCount} 唳溹Θ",
+                "⏳",
+                "অপেক্ষমাণ",
+                "${waitingCount} জন",
                 ORANGE
             )
         )
@@ -617,18 +617,18 @@ class MainActivity : Activity() {
 
         stats2.addView(
             statCard(
-                "鉁�",
-                "唳膏Ξ唰嵿Κ唳ㄠ唳�",
-                "${completedCount} 唳溹Θ",
+                "✓",
+                "সম্পন্ন",
+                "${completedCount} জন",
                 GREEN
             )
         )
 
         stats2.addView(
             statCard(
-                "鉁�",
-                "唳唳む唳�",
-                "${cancelledCount} 唳溹Θ",
+                "✕",
+                "বাতিল",
+                "${cancelledCount} জন",
                 RED
             )
         )
@@ -641,7 +641,7 @@ class MainActivity : Activity() {
 
         root.addView(
             label(
-                "唳︵唳班唳� 唳呧唳唳曕Χ唳�",
+                "দ্রুত অ্যাকশন",
                 24f,
                 DARK_BLUE,
                 true
@@ -652,7 +652,7 @@ class MainActivity : Activity() {
 
         root.addView(
             actionButton(
-                "馃搵   唳熰唳熰唳� 唳膏唳班唳唳距Σ",
+                "📋   টোটাল সিরিয়াল",
                 BLUE
             ) {
                 showTotalSerial()
@@ -661,7 +661,7 @@ class MainActivity : Activity() {
 
         root.addView(
             actionButton(
-                "锛�   唳呧唳唳� 唳膏唳班唳唳距Σ",
+                "＋   অ্যাড সিরিয়াল",
                 BLUE
             ) {
                 showAddSerial()
@@ -670,19 +670,19 @@ class MainActivity : Activity() {
 
         root.addView(
             actionButton(
-                "唳∴唳曕唳む唳�   唳呧唳唳� 唳∴唳曕唳む唳�",
+                "ডাক্তার   অ্যাড ডাক্তার",
                 BLUE
             ) {
-                toast("唳呧唳唳� 唳∴唳曕唳む唳�")
+                toast("অ্যাড ডাক্তার")
             }
         )
 
         root.addView(
             actionButton(
-                "唳曕唳唳距Π   唳呧唳唳� 唳曕唳唳距Π 唳呧Λ",
+                "কেয়ার   অ্যাড কেয়ার অফ",
                 BLUE
             ) {
-                toast("唳呧唳唳� 唳曕唳唳距Π 唳呧Λ")
+                toast("অ্যাড কেয়ার অফ")
             }
         )
 
@@ -692,7 +692,7 @@ class MainActivity : Activity() {
 
         root.addView(
             label(
-                "唳∴唳曕唳む唳� 唳撪Ο唳监唳囙 唳膏唳班唳唳距Σ",
+                "ডাক্তার ওয়াইজ সিরিয়াল",
                 23f,
                 DARK_BLUE,
                 true
@@ -701,7 +701,7 @@ class MainActivity : Activity() {
 
         root.addView(
             label(
-                "唳∴唳曕唳む唳� 唳ㄠ唳班唳唳氞Θ 唳曕Π唰� 唳む唳� 唳膏唳班唳唳距Σ唳椸唳侧 唳︵唳栢 唳唳",
+                "ডাক্তার নির্বাচন করে তার সিরিয়ালগুলো দেখা যাবে",
                 14f,
                 GRAY
             )
@@ -713,7 +713,7 @@ class MainActivity : Activity() {
 
         root.addView(
             label(
-                "唳曕唳唳距Π 唳撪Ο唳监唳囙 唳膏唳班唳唳距Σ",
+                "কেয়ার ওয়াইজ সিরিয়াল",
                 23f,
                 DARK_BLUE,
                 true
@@ -722,7 +722,7 @@ class MainActivity : Activity() {
 
         root.addView(
             label(
-                "唳曕唳唳距Π 唳呧Λ 唳ㄠ唳班唳唳氞Θ 唳曕Π唰� 唳膏唳多唳侧唳粪唳� 唳膏唳班唳唳距Σ唳椸唳侧 唳︵唳栢 唳唳",
+                "কেয়ার অফ নির্বাচন করে সংশ্লিষ্ট সিরিয়ালগুলো দেখা যাবে",
                 14f,
                 GRAY
             )
@@ -736,7 +736,7 @@ class MainActivity : Activity() {
 
             root.addView(
                 label(
-                    "馃憫 Admin Control Panel",
+                    "👑 Admin Control Panel",
                     22f,
                     PURPLE,
                     true
@@ -745,7 +745,7 @@ class MainActivity : Activity() {
 
             root.addView(
                 label(
-                    "User 唳忇Μ唳� Operator 唳Π唳苦唳距Σ唳ㄠ 唳曕Π唰佮Θ",
+                    "User এবং Operator পরিচালনা করুন",
                     14f,
                     GRAY
                 )
@@ -755,7 +755,7 @@ class MainActivity : Activity() {
 
             root.addView(
                 actionButton(
-                    "鈿�   Admin Control Panel",
+                    "⚙   Admin Control Panel",
                     PURPLE
                 ) {
 
@@ -773,8 +773,8 @@ class MainActivity : Activity() {
         refreshBox.background = background(Color.rgb(232, 247, 244), 14f, Color.rgb(181, 224, 216))
         refreshBox.elevation = 2f
 
-        refreshBox.addView(label("馃攧  唳∴唳熰 唳唳班Δ唳� 唰ㄠЕ 唳膏唳曕唳ㄠ唳� 唳Π 唳Π 唳呧唰� 唳班唳侧唳� 唳灌唰嵿唰�", 14f, TEAL, true))
-        lastRefreshText = label("唳膏Π唰嵿Μ唳多唳� 唳嗋Κ唳∴唳�: ${currentTime()}", 13f, GRAY)
+        refreshBox.addView(label("🔄  ডাটা প্রতি ২০ সেকেন্ড পর পর অটো রিলোড হচ্ছে", 14f, TEAL, true))
+        lastRefreshText = label("সর্বশেষ আপডেট: ${currentTime()}", 13f, GRAY)
         refreshBox.addView(lastRefreshText)
         root.addView(refreshBox, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
 
@@ -782,7 +782,7 @@ class MainActivity : Activity() {
 
         root.addView(
             label(
-                "唳唳� 唳∴唳唳距唳ㄠΩ唰嵿唳苦 唳膏唳ㄠ唳熰唳�",
+                "মুন ডায়াগনস্টিক সেন্টার",
                 15f,
                 GRAY,
                 true
@@ -791,7 +791,7 @@ class MainActivity : Activity() {
 
         root.addView(
             label(
-                "唳嗋Κ唳ㄠ唳� 唳唳多唳Ω唰嵿Δ 唳膏唳唳膏唳ム唳Ω唰囙Μ唳� 唳曕唳ㄠ唳︵唳�",
+                "আপনার বিশ্বস্ত স্বাস্থ্যসেবা কেন্দ্র",
                 13f,
                 GRAY
             )
@@ -801,7 +801,7 @@ class MainActivity : Activity() {
             scrollScreen(root)
         )
 
-        lastRefreshText?.text = "唳膏Π唰嵿Μ唳多唳� 唳嗋Κ唳∴唳�: ${currentTime()}"
+        lastRefreshText?.text = "সর্বশেষ আপডেট: ${currentTime()}"
         refreshHandler.postDelayed(refreshRunnable, refreshIntervalMs)
     }
 
@@ -813,7 +813,7 @@ class MainActivity : Activity() {
         // When Firebase is connected later, this is the single hook to replace with a Firestore snapshot read.
         currentUsername = pref.getString("current_user", currentUsername) ?: currentUsername
         currentRole = pref.getString("current_role", currentRole) ?: currentRole
-        lastRefreshText?.text = "唳膏Π唰嵿Μ唳多唳� 唳嗋Κ唳∴唳�: ${currentTime()}"
+        lastRefreshText?.text = "সর্বশেষ আপডেট: ${currentTime()}"
         // Rebuild the dashboard so serial counts reflect newly saved records.
         if (dashboardVisible) showDashboard()
     }
@@ -825,15 +825,15 @@ class MainActivity : Activity() {
     private fun showAddSerial() {
 
         if (currentUsername.isEmpty()) {
-            toast("唳嗋唰� Login 唳曕Π唰佮Θ")
+            toast("আগে Login করুন")
             return
         }
 
         val root = verticalContainer()
         root.setPadding(14, 18, 14, 28)
 
-        root.addView(label("鉃� 唳ㄠΔ唰佮Θ 唳膏唳班唳唳距Σ", 28f, DARK_BLUE, true))
-        root.addView(label("唳班唳椸唳� 唳むΕ唰嵿Ο 唳︵唳唰� 唳ㄠΔ唰佮Θ 唳膏唳班唳唳距Σ 唳む唳班 唳曕Π唰佮Θ", 14f, GRAY))
+        root.addView(label("➕ নতুন সিরিয়াল", 28f, DARK_BLUE, true))
+        root.addView(label("রোগীর তথ্য দিয়ে নতুন সিরিয়াল তৈরি করুন", 14f, GRAY))
         root.addView(space(14))
 
         val card = LinearLayout(this)
@@ -842,23 +842,23 @@ class MainActivity : Activity() {
         card.background = background(WHITE, 20f, LIGHT_BORDER)
         card.elevation = 5f
 
-        val patient = input("唳班唳椸唳� 唳ㄠ唳�")
-        val careOf = input("Care Of / 唳呧Ν唳苦Ν唳距Μ唳曕唳� 唳ㄠ唳�")
-        val doctor = input("唳∴唳曕唳む唳班唳� 唳ㄠ唳�")
+        val patient = input("রোগীর নাম")
+        val careOf = input("Care Of / অভিভাবকের নাম")
+        val doctor = input("ডাক্তারের নাম")
 
-        card.addView(label("唳班唳椸唳� 唳ㄠ唳�", 15f, DARK_BLUE, true))
+        card.addView(label("রোগীর নাম", 15f, DARK_BLUE, true))
         card.addView(patient)
         card.addView(label("Care Of", 15f, DARK_BLUE, true))
         card.addView(careOf)
-        card.addView(label("唳∴唳曕唳む唳�", 15f, DARK_BLUE, true))
+        card.addView(label("ডাক্তার", 15f, DARK_BLUE, true))
         card.addView(doctor)
 
         card.addView(space(8))
-        card.addView(label("唳膏唳班唳唳距Σ唳熰 唳む唳班 唳灌Μ唰� 唳嗋Κ唳ㄠ唳� Login 唳曕Π唳� 唳ㄠ唳唳� 唳呧Η唰€唳ㄠ:", 13f, GRAY))
-        card.addView(label("$currentUsername  鈥�  $currentRole", 17f, TEAL, true))
+        card.addView(label("সিরিয়ালটি তৈরি হবে আপনার Login করা নামের অধীনে:", 13f, GRAY))
+        card.addView(label("$currentUsername  •  $currentRole", 17f, TEAL, true))
         card.addView(space(8))
 
-        card.addView(actionButton("鉁�   唳膏唳班唳唳距Σ 唳む唳班 唳曕Π唰佮Θ", GREEN, 64) {
+        card.addView(actionButton("✅   সিরিয়াল তৈরি করুন", GREEN, 64) {
             saveSerial(
                 patient.text.toString().trim(),
                 careOf.text.toString().trim(),
@@ -868,14 +868,14 @@ class MainActivity : Activity() {
 
         root.addView(card)
         root.addView(space(14))
-        root.addView(actionButton("鈫�   Dashboard-唳� 唳唳班 唳唳�", BLUE) { showDashboard() })
+        root.addView(actionButton("←   Dashboard-এ ফিরে যান", BLUE) { showDashboard() })
 
         setContentView(scrollScreen(root))
     }
 
     private fun saveSerial(patient: String, careOf: String, doctor: String) {
-        if (patient.isEmpty()) { toast("唳班唳椸唳� 唳ㄠ唳� 唳侧唳栢唳�"); return }
-        if (doctor.isEmpty()) { toast("唳∴唳曕唳む唳班唳� 唳ㄠ唳� 唳侧唳栢唳�"); return }
+        if (patient.isEmpty()) { toast("রোগীর নাম লিখুন"); return }
+        if (doctor.isEmpty()) { toast("ডাক্তারের নাম লিখুন"); return }
 
         val today = SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(Date())
         var next = 1
@@ -898,7 +898,7 @@ class MainActivity : Activity() {
         ).joinToString("||")
 
         pref.edit().putString(key, value).apply()
-        toast("唳膏唳班唳唳距Σ #$next 唳む唳班 唳灌Ο唳监唳涏 鈥� $currentUsername")
+        toast("সিরিয়াল #$next তৈরি হয়েছে — $currentUsername")
         showTotalSerial()
     }
 
@@ -927,12 +927,12 @@ class MainActivity : Activity() {
         root.setPadding(12, 18, 12, 28)
         val records = readSerials()
 
-        root.addView(label("馃搵 唳嗋唳曕唳� 唳唳� 唳膏唳班唳唳距Σ", 27f, DARK_BLUE, true))
-        root.addView(label("唳唳� ${records.size} 唳溹Θ", 17f, TEAL, true))
+        root.addView(label("📋 আজকের মোট সিরিয়াল", 27f, DARK_BLUE, true))
+        root.addView(label("মোট ${records.size} জন", 17f, TEAL, true))
         root.addView(space(10))
 
         if (records.isEmpty()) {
-            root.addView(label("唳嗋 唳忇唳ㄠ 唳曕唳ㄠ 唳膏唳班唳唳距Σ 唳む唳班 唳灌Ο唳监Θ唳�", 16f, GRAY))
+            root.addView(label("আজ এখনো কোনো সিরিয়াল তৈরি হয়নি", 16f, GRAY))
         } else {
             records.forEach { r ->
                 val card = LinearLayout(this)
@@ -944,19 +944,19 @@ class MainActivity : Activity() {
                 params.setMargins(6, 5, 6, 5)
                 card.layoutParams = params
 
-                card.addView(label("唳膏唳班唳唳距Σ #${r.number}   鈥�   ${r.status}", 19f, BLUE, true))
-                card.addView(label("馃懁 ${r.patient}", 17f, DARK, true))
-                card.addView(label("Care Of: ${if (r.careOf.isEmpty()) "鈥�" else r.careOf}", 14f, GRAY))
-                card.addView(label("唳∴唳曕唳む唳�: ${r.doctor}", 15f, DARK))
-                card.addView(label("鉁� 唳︵唳唰囙唰囙Θ: ${r.createdBy} (${r.createdRole})", 14f, TEAL, true))
-                card.addView(label("唳膏Ξ唰�: ${r.createdAt}", 12f, GRAY))
+                card.addView(label("সিরিয়াল #${r.number}   •   ${r.status}", 19f, BLUE, true))
+                card.addView(label("👤 ${r.patient}", 17f, DARK, true))
+                card.addView(label("Care Of: ${if (r.careOf.isEmpty()) "—" else r.careOf}", 14f, GRAY))
+                card.addView(label("ডাক্তার: ${r.doctor}", 15f, DARK))
+                card.addView(label("✍ দিয়েছেন: ${r.createdBy} (${r.createdRole})", 14f, TEAL, true))
+                card.addView(label("সময়: ${r.createdAt}", 12f, GRAY))
                 root.addView(card)
             }
         }
 
         root.addView(space(12))
-        root.addView(actionButton("锛�   唳ㄠΔ唰佮Θ 唳膏唳班唳唳距Σ", GREEN) { showAddSerial() })
-        root.addView(actionButton("鈫�   Dashboard-唳� 唳唳班 唳唳�", BLUE) { showDashboard() })
+        root.addView(actionButton("＋   নতুন সিরিয়াল", GREEN) { showAddSerial() })
+        root.addView(actionButton("←   Dashboard-এ ফিরে যান", BLUE) { showDashboard() })
         setContentView(scrollScreen(root))
     }
 
@@ -1033,7 +1033,7 @@ class MainActivity : Activity() {
 
         if (!currentRole.equals("Admin", true)) {
 
-            toast("唳多唳о唳唳む唳� Admin 唳忇 唳唳� 唳唳Μ唳灌唳� 唳曕Π唳む 唳唳班Μ唰囙Θ")
+            toast("শুধুমাত্র Admin এই পেজ ব্যবহার করতে পারবেন")
             return
         }
 
@@ -1041,7 +1041,7 @@ class MainActivity : Activity() {
 
         root.addView(
             label(
-                "馃憫 Admin Control Panel",
+                "👑 Admin Control Panel",
                 25f,
                 DARK_BLUE,
                 true
@@ -1050,7 +1050,7 @@ class MainActivity : Activity() {
 
         root.addView(
             label(
-                "User 唳忇Μ唳� Operator 唳Π唳苦唳距Σ唳ㄠ 唳曕Π唰佮Θ",
+                "User এবং Operator পরিচালনা করুন",
                 14f,
                 GRAY
             )
@@ -1059,11 +1059,11 @@ class MainActivity : Activity() {
         root.addView(space(12))
 
         val username = input(
-            "唳ㄠΔ唰佮Θ Username"
+            "নতুন Username"
         )
 
         val password = input(
-            "唳ㄠΔ唰佮Θ Password",
+            "নতুন Password",
             true
         )
 
@@ -1105,7 +1105,7 @@ class MainActivity : Activity() {
 
         root.addView(
             actionButton(
-                "锛�   唳ㄠΔ唰佮Θ User / Operator 唳む唳班 唳曕Π唰佮Θ",
+                "＋   নতুন User / Operator তৈরি করুন",
                 TEAL
             ) {
 
@@ -1121,7 +1121,7 @@ class MainActivity : Activity() {
 
         root.addView(
             label(
-                "唳Π唰嵿Δ唳唳� User / Operator",
+                "বর্তমান User / Operator",
                 23f,
                 DARK_BLUE,
                 true
@@ -1136,7 +1136,7 @@ class MainActivity : Activity() {
 
         root.addView(
             actionButton(
-                "鈫�   Dashboard-唳� 唳唳班 唳唳�",
+                "←   Dashboard-এ ফিরে যান",
                 BLUE
             ) {
 
@@ -1160,12 +1160,12 @@ class MainActivity : Activity() {
     ) {
 
         if (username.isEmpty()) {
-            toast("Username 唳︵唳�")
+            toast("Username দিন")
             return
         }
 
         if (password.length < 4) {
-            toast("Password 唳曕Ξ唳唰嵿Ψ唰� 唰� 唳呧唰嵿Ψ唳班唳� 唳灌Δ唰� 唳灌Μ唰�")
+            toast("Password কমপক্ষে ৪ অক্ষরের হতে হবে")
             return
         }
 
@@ -1173,7 +1173,7 @@ class MainActivity : Activity() {
             pref.contains("user_$username")
         ) {
 
-            toast("唳忇 Username 唳嗋唰� 唳ム唳曕唳� 唳嗋唰�")
+            toast("এই Username আগে থেকেই আছে")
             return
         }
 
@@ -1183,7 +1183,7 @@ class MainActivity : Activity() {
             .putString("role_$username", role)
             .apply()
 
-        toast("$role 唳膏Λ唳侧Ν唳距Μ唰� 唳む唳班 唳灌Ο唳监唳涏")
+        toast("$role সফলভাবে তৈরি হয়েছে")
 
         showAdminPanel()
     }
@@ -1274,7 +1274,7 @@ class MainActivity : Activity() {
 
                     val delete =
                         label(
-                            "唳唳涏唳�",
+                            "মুছুন",
                             13f,
                             WHITE,
                             true
@@ -1317,7 +1317,7 @@ class MainActivity : Activity() {
 
             root.addView(
                 label(
-                    "唳忇唳ㄠ 唳曕唳ㄠ User / Operator 唳む唳班 唳曕Π唳� 唳灌Ο唳监Θ唳�",
+                    "এখনও কোনো User / Operator তৈরি করা হয়নি",
                     14f,
                     GRAY
                 )
@@ -1332,7 +1332,7 @@ class MainActivity : Activity() {
     private fun deleteUser(username: String) {
 
         if (username.equals("admin", true)) {
-            toast("Admin account 唳唳涏 唳唳 唳ㄠ")
+            toast("Admin account মুছা যাবে না")
             return
         }
 
@@ -1342,7 +1342,7 @@ class MainActivity : Activity() {
             .remove("role_$username")
             .apply()
 
-        toast("$username 唳唳涏 唳唳侧 唳灌Ο唳监唳涏")
+        toast("$username মুছে ফেলা হয়েছে")
 
         showAdminPanel()
     }
@@ -1365,7 +1365,7 @@ class MainActivity : Activity() {
         currentUsername = ""
         currentRole = ""
 
-        toast("Logout 唳膏Λ唳� 唳灌Ο唳监唳涏")
+        toast("Logout সফল হয়েছে")
 
         showLogin()
     }
