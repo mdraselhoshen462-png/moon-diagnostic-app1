@@ -12,12 +12,10 @@ import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-
 import java.security.MessageDigest
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import java.util.Calendar
 
 class MainActivity : Activity() {
 
@@ -48,8 +46,58 @@ class MainActivity : Activity() {
     private var currentUsername = ""
     private var currentRole = ""
 
-    // Local serial records. Each record keeps patient, care-of, doctor,
-    // status, creator username and creator role.
+    // =========================================================
+    // SCREEN STATE
+    // =========================================================
+
+    private enum class Screen {
+        LOGIN,
+        DASHBOARD,
+        ADD_SERIAL,
+        TOTAL_SERIAL,
+        ADMIN_PANEL
+    }
+
+    private var currentScreen = Screen.LOGIN
+
+    // =========================================================
+    // AUTO REFRESH
+    // =========================================================
+
+    private val refreshHandler = Handler(Looper.getMainLooper())
+
+    // 20 seconds
+    private val refreshIntervalMs = 20_000L
+
+    private var lastRefreshText: TextView? = null
+
+    private val refreshRunnable = object : Runnable {
+
+        override fun run() {
+
+            // IMPORTANT:
+            // Auto refresh will ONLY work on Dashboard.
+            // It will NEVER force another page back to Dashboard.
+
+            if (
+                currentScreen == Screen.DASHBOARD &&
+                currentUsername.isNotEmpty()
+            ) {
+
+                refreshDashboardData()
+
+                refreshHandler.postDelayed(
+                    this,
+                    refreshIntervalMs
+                )
+            }
+        }
+    }
+
+    // =========================================================
+    // SERIAL DATA
+    // =========================================================
+
     private val serialPrefix = "serial_"
 
     private data class SerialRecord(
@@ -63,41 +111,54 @@ class MainActivity : Activity() {
         val createdAt: String
     )
 
-    // Dashboard auto-refresh: 20 seconds
-    private val refreshHandler = Handler(Looper.getMainLooper())
-    private val refreshIntervalMs = 20_000L
-    private var dashboardVisible = false
-    private var lastRefreshText: TextView? = null
-    private val refreshRunnable = object : Runnable {
-        override fun run() {
-            if (dashboardVisible && currentUsername.isNotEmpty()) {
-                refreshDashboardData()
-                refreshHandler.postDelayed(this, refreshIntervalMs)
-            }
-        }
-    }
-
     // =========================================================
     // ACTIVITY
     // =========================================================
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
 
-        pref = getSharedPreferences(PREF_NAME, MODE_PRIVATE)
+        pref = getSharedPreferences(
+            PREF_NAME,
+            MODE_PRIVATE
+        )
 
         createDefaultAdmin()
 
-        if (pref.getBoolean("logged_in", false)) {
-            currentUsername = pref.getString("current_user", "") ?: ""
-            currentRole = pref.getString("current_role", "") ?: ""
+        if (
+            pref.getBoolean(
+                "logged_in",
+                false
+            )
+        ) {
 
-            if (currentUsername.isNotEmpty() && currentRole.isNotEmpty()) {
+            currentUsername =
+                pref.getString(
+                    "current_user",
+                    ""
+                ) ?: ""
+
+            currentRole =
+                pref.getString(
+                    "current_role",
+                    ""
+                ) ?: ""
+
+            if (
+                currentUsername.isNotEmpty() &&
+                currentRole.isNotEmpty()
+            ) {
+
                 showDashboard()
+
             } else {
+
                 showLogin()
             }
+
         } else {
+
             showLogin()
         }
     }
@@ -111,9 +172,18 @@ class MainActivity : Activity() {
         if (!pref.contains("user_admin")) {
 
             pref.edit()
-                .putString("user_admin", "admin")
-                .putString("pass_admin", hashPassword("admin123"))
-                .putString("role_admin", "Admin")
+                .putString(
+                    "user_admin",
+                    "admin"
+                )
+                .putString(
+                    "pass_admin",
+                    hashPassword("admin123")
+                )
+                .putString(
+                    "role_admin",
+                    "Admin"
+                )
                 .apply()
         }
     }
@@ -138,7 +208,11 @@ class MainActivity : Activity() {
         t.includeFontPadding = true
 
         if (bold) {
-            t.setTypeface(Typeface.DEFAULT, Typeface.BOLD)
+
+            t.setTypeface(
+                Typeface.DEFAULT,
+                Typeface.BOLD
+            )
         }
 
         return t
@@ -152,17 +226,28 @@ class MainActivity : Activity() {
 
         val l = LinearLayout(this)
 
-        l.orientation = LinearLayout.VERTICAL
-        l.setPadding(16, 16, 16, 24)
+        l.orientation =
+            LinearLayout.VERTICAL
+
+        l.setPadding(
+            16,
+            16,
+            16,
+            24
+        )
 
         return l
     }
 
-    private fun scrollScreen(content: View): ScrollView {
+    private fun scrollScreen(
+        content: View
+    ): ScrollView {
 
-        val scroll = ScrollView(this)
+        val scroll =
+            ScrollView(this)
 
         scroll.setBackgroundColor(BG)
+
         scroll.isFillViewport = true
 
         scroll.addView(content)
@@ -180,30 +265,40 @@ class MainActivity : Activity() {
         strokeColor: Int? = null
     ): GradientDrawable {
 
-        val drawable = GradientDrawable()
+        val drawable =
+            GradientDrawable()
 
         drawable.setColor(color)
-        drawable.cornerRadius = radius
+
+        drawable.cornerRadius =
+            radius
 
         if (strokeColor != null) {
-            drawable.setStroke(2, strokeColor)
+
+            drawable.setStroke(
+                2,
+                strokeColor
+            )
         }
 
         return drawable
     }
 
     // =========================================================
-    // SPACING
+    // SPACE
     // =========================================================
 
-    private fun space(height: Int): Space {
+    private fun space(
+        height: Int
+    ): Space {
 
         val s = Space(this)
 
-        s.layoutParams = LinearLayout.LayoutParams(
-            1,
-            height
-        )
+        s.layoutParams =
+            LinearLayout.LayoutParams(
+                1,
+                height
+            )
 
         return s
     }
@@ -219,32 +314,46 @@ class MainActivity : Activity() {
         onClick: () -> Unit
     ): TextView {
 
-        val b = label(
-            text,
-            16f,
-            WHITE,
-            true
-        )
+        val b =
+            label(
+                text,
+                16f,
+                WHITE,
+                true
+            )
 
-        b.background = background(
-            color,
-            14f
-        )
+        b.background =
+            background(
+                color,
+                14f
+            )
 
-        b.setPadding(12, 0, 12, 0)
+        b.setPadding(
+            12,
+            0,
+            12,
+            0
+        )
 
         b.elevation = 3f
 
-        val params = LinearLayout.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            height
-        )
+        val params =
+            LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                height
+            )
 
-        params.setMargins(8, 5, 8, 5)
+        params.setMargins(
+            8,
+            5,
+            8,
+            5
+        )
 
         b.layoutParams = params
 
         b.setOnClickListener {
+
             onClick()
         }
 
@@ -252,7 +361,7 @@ class MainActivity : Activity() {
     }
 
     // =========================================================
-    // EDIT TEXT
+    // INPUT
     // =========================================================
 
     private fun input(
@@ -260,36 +369,61 @@ class MainActivity : Activity() {
         password: Boolean = false
     ): EditText {
 
-        val e = EditText(this)
+        val e =
+            EditText(this)
 
         e.hint = hint
+
         e.textSize = 18f
+
         e.setTextColor(DARK)
-        e.setHintTextColor(Color.rgb(125, 130, 135))
 
-        e.setPadding(16, 0, 16, 0)
-
-        e.background = background(
-            WHITE,
-            14f,
-            TEAL
+        e.setHintTextColor(
+            Color.rgb(
+                125,
+                130,
+                135
+            )
         )
 
+        e.setPadding(
+            16,
+            0,
+            16,
+            0
+        )
+
+        e.background =
+            background(
+                WHITE,
+                14f,
+                TEAL
+            )
+
         if (password) {
+
             e.inputType =
                 InputType.TYPE_CLASS_TEXT or
                 InputType.TYPE_TEXT_VARIATION_PASSWORD
+
         } else {
+
             e.inputType =
                 InputType.TYPE_CLASS_TEXT
         }
 
-        val params = LinearLayout.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            62
-        )
+        val params =
+            LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                62
+            )
 
-        params.setMargins(8, 7, 8, 7)
+        params.setMargins(
+            8,
+            7,
+            8,
+            7
+        )
 
         e.layoutParams = params
 
@@ -302,17 +436,26 @@ class MainActivity : Activity() {
 
     private fun showLogin() {
 
+        stopAutoRefresh()
+
+        currentScreen =
+            Screen.LOGIN
+
         currentUsername = ""
         currentRole = ""
 
-        dashboardVisible = false
-        refreshHandler.removeCallbacks(refreshRunnable)
+        val root =
+            verticalContainer()
 
-        val root = verticalContainer()
-        root.setPadding(16, 22, 16, 28)
-        root.gravity = Gravity.CENTER_HORIZONTAL
+        root.setPadding(
+            16,
+            22,
+            16,
+            28
+        )
 
-        // Logo
+        root.gravity =
+            Gravity.CENTER_HORIZONTAL
 
         root.addView(space(38))
 
@@ -348,29 +491,45 @@ class MainActivity : Activity() {
 
         root.addView(space(18))
 
-        // Login Card
+        val card =
+            LinearLayout(this)
 
-        val card = LinearLayout(this)
+        card.orientation =
+            LinearLayout.VERTICAL
 
-        card.orientation = LinearLayout.VERTICAL
-        card.setPadding(14, 22, 14, 22)
-
-        card.background = background(
-            WHITE,
-            20f,
-            LIGHT_BORDER
+        card.setPadding(
+            14,
+            22,
+            14,
+            22
         )
+
+        card.background =
+            background(
+                WHITE,
+                20f,
+                LIGHT_BORDER
+            )
 
         card.elevation = 6f
 
-        val cardParams = LinearLayout.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
+        val cardParams =
+            LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+
+        cardParams.setMargins(
+            6,
+            0,
+            6,
+            0
         )
 
-        cardParams.setMargins(6, 0, 6, 0)
-
-        root.addView(card, cardParams)
+        root.addView(
+            card,
+            cardParams
+        )
 
         card.addView(
             label(
@@ -383,16 +542,17 @@ class MainActivity : Activity() {
 
         card.addView(space(14))
 
-        val username = input(
-            "ইউজারনেম"
-        )
+        val username =
+            input("ইউজারনেম")
 
-        val password = input(
-            "পাসওয়ার্ড",
-            true
-        )
+        val password =
+            input(
+                "পাসওয়ার্ড",
+                true
+            )
 
         card.addView(username)
+
         card.addView(password)
 
         card.addView(space(10))
@@ -446,7 +606,7 @@ class MainActivity : Activity() {
     }
 
     // =========================================================
-    // LOGIN FUNCTION
+    // LOGIN
     // =========================================================
 
     private fun loginUser(
@@ -455,47 +615,77 @@ class MainActivity : Activity() {
     ) {
 
         if (username.isEmpty()) {
+
             toast("Username লিখুন")
+
             return
         }
 
         if (password.isEmpty()) {
+
             toast("Password লিখুন")
+
             return
         }
 
         val savedUsername =
-            pref.getString("user_$username", null)
+            pref.getString(
+                "user_$username",
+                null
+            )
 
         val savedPassword =
-            pref.getString("pass_$username", null)
+            pref.getString(
+                "pass_$username",
+                null
+            )
 
         val savedRole =
-            pref.getString("role_$username", null)
+            pref.getString(
+                "role_$username",
+                null
+            )
 
         if (
             savedUsername != null &&
             savedPassword != null &&
             savedRole != null &&
-            savedPassword == hashPassword(password)
+            savedPassword ==
+            hashPassword(password)
         ) {
 
-            currentUsername = username
-            currentRole = savedRole
+            currentUsername =
+                username
+
+            currentRole =
+                savedRole
 
             pref.edit()
-                .putBoolean("logged_in", true)
-                .putString("current_user", username)
-                .putString("current_role", savedRole)
+                .putBoolean(
+                    "logged_in",
+                    true
+                )
+                .putString(
+                    "current_user",
+                    username
+                )
+                .putString(
+                    "current_role",
+                    savedRole
+                )
                 .apply()
 
-            toast("সফলভাবে লগইন হয়েছে")
+            toast(
+                "সফলভাবে লগইন হয়েছে"
+            )
 
             showDashboard()
 
         } else {
 
-            toast("Username অথবা Password ভুল")
+            toast(
+                "Username অথবা Password ভুল"
+            )
         }
     }
 
@@ -505,13 +695,26 @@ class MainActivity : Activity() {
 
     private fun showDashboard() {
 
-        dashboardVisible = true
-        refreshHandler.removeCallbacks(refreshRunnable)
+        // First stop any old refresh job.
+        stopAutoRefresh()
 
-        val root = verticalContainer()
-        root.setPadding(12, 18, 12, 28)
+        // Now we are officially on Dashboard.
+        currentScreen =
+            Screen.DASHBOARD
 
-        // Header
+        val root =
+            verticalContainer()
+
+        root.setPadding(
+            12,
+            18,
+            12,
+            28
+        )
+
+        // =====================================================
+        // HEADER
+        // =====================================================
 
         root.addView(
             label(
@@ -542,7 +745,9 @@ class MainActivity : Activity() {
 
         root.addView(space(8))
 
-        // Logout
+        // =====================================================
+        // LOGOUT
+        // =====================================================
 
         root.addView(
             actionButton(
@@ -557,7 +762,9 @@ class MainActivity : Activity() {
 
         root.addView(space(10))
 
-        // Date
+        // =====================================================
+        // DATE
+        // =====================================================
 
         root.addView(
             label(
@@ -568,10 +775,11 @@ class MainActivity : Activity() {
             )
         )
 
-        val date = SimpleDateFormat(
-            "dd-MM-yyyy",
-            Locale.getDefault()
-        ).format(Date())
+        val date =
+            SimpleDateFormat(
+                "dd-MM-yyyy",
+                Locale.getDefault()
+            ).format(Date())
 
         root.addView(
             label(
@@ -583,14 +791,33 @@ class MainActivity : Activity() {
 
         root.addView(space(12))
 
-        // Statistics
+        // =====================================================
+        // STATISTICS
+        // =====================================================
 
-        val dashboardSerials = readSerials()
-        val waitingCount = dashboardSerials.count { it.status == "Waiting" }
-        val completedCount = dashboardSerials.count { it.status == "Completed" }
-        val cancelledCount = dashboardSerials.count { it.status == "Cancelled" }
-        val stats1 = LinearLayout(this)
-        stats1.orientation = LinearLayout.HORIZONTAL
+        val dashboardSerials =
+            readSerials()
+
+        val waitingCount =
+            dashboardSerials.count {
+                it.status == "Waiting"
+            }
+
+        val completedCount =
+            dashboardSerials.count {
+                it.status == "Completed"
+            }
+
+        val cancelledCount =
+            dashboardSerials.count {
+                it.status == "Cancelled"
+            }
+
+        val stats1 =
+            LinearLayout(this)
+
+        stats1.orientation =
+            LinearLayout.HORIZONTAL
 
         stats1.addView(
             statCard(
@@ -605,21 +832,24 @@ class MainActivity : Activity() {
             statCard(
                 "⏳",
                 "অপেক্ষমাণ",
-                "${waitingCount} জন",
+                "$waitingCount জন",
                 ORANGE
             )
         )
 
         root.addView(stats1)
 
-        val stats2 = LinearLayout(this)
-        stats2.orientation = LinearLayout.HORIZONTAL
+        val stats2 =
+            LinearLayout(this)
+
+        stats2.orientation =
+            LinearLayout.HORIZONTAL
 
         stats2.addView(
             statCard(
                 "✓",
                 "সম্পন্ন",
-                "${completedCount} জন",
+                "$completedCount জন",
                 GREEN
             )
         )
@@ -628,7 +858,7 @@ class MainActivity : Activity() {
             statCard(
                 "✕",
                 "বাতিল",
-                "${cancelledCount} জন",
+                "$cancelledCount জন",
                 RED
             )
         )
@@ -637,7 +867,9 @@ class MainActivity : Activity() {
 
         root.addView(space(12))
 
-        // Quick Action title
+        // =====================================================
+        // QUICK ACTION
+        // =====================================================
 
         root.addView(
             label(
@@ -655,6 +887,7 @@ class MainActivity : Activity() {
                 "📋   টোটাল সিরিয়াল",
                 BLUE
             ) {
+
                 showTotalSerial()
             }
         )
@@ -664,6 +897,7 @@ class MainActivity : Activity() {
                 "＋   অ্যাড সিরিয়াল",
                 BLUE
             ) {
+
                 showAddSerial()
             }
         )
@@ -673,7 +907,10 @@ class MainActivity : Activity() {
                 "ডাক্তার   অ্যাড ডাক্তার",
                 BLUE
             ) {
-                toast("অ্যাড ডাক্তার")
+
+                toast(
+                    "অ্যাড ডাক্তার"
+                )
             }
         )
 
@@ -682,13 +919,18 @@ class MainActivity : Activity() {
                 "কেয়ার   অ্যাড কেয়ার অফ",
                 BLUE
             ) {
-                toast("অ্যাড কেয়ার অফ")
+
+                toast(
+                    "অ্যাড কেয়ার অফ"
+                )
             }
         )
 
         root.addView(space(12))
 
-        // Doctor Wise
+        // =====================================================
+        // DOCTOR WISE
+        // =====================================================
 
         root.addView(
             label(
@@ -709,7 +951,9 @@ class MainActivity : Activity() {
 
         root.addView(space(12))
 
-        // Care Wise
+        // =====================================================
+        // CARE WISE
+        // =====================================================
 
         root.addView(
             label(
@@ -728,9 +972,16 @@ class MainActivity : Activity() {
             )
         )
 
-        // Admin Control Panel
+        // =====================================================
+        // ADMIN PANEL
+        // =====================================================
 
-        if (currentRole.equals("Admin", true)) {
+        if (
+            currentRole.equals(
+                "Admin",
+                true
+            )
+        ) {
 
             root.addView(space(18))
 
@@ -764,19 +1015,72 @@ class MainActivity : Activity() {
             )
         }
 
+        // =====================================================
+        // AUTO REFRESH INFORMATION
+        // =====================================================
+
         root.addView(space(18))
 
-        val refreshBox = LinearLayout(this)
-        refreshBox.orientation = LinearLayout.VERTICAL
-        refreshBox.gravity = Gravity.CENTER
-        refreshBox.setPadding(12, 12, 12, 12)
-        refreshBox.background = background(Color.rgb(232, 247, 244), 14f, Color.rgb(181, 224, 216))
+        val refreshBox =
+            LinearLayout(this)
+
+        refreshBox.orientation =
+            LinearLayout.VERTICAL
+
+        refreshBox.gravity =
+            Gravity.CENTER
+
+        refreshBox.setPadding(
+            12,
+            12,
+            12,
+            12
+        )
+
+        refreshBox.background =
+            background(
+                Color.rgb(
+                    232,
+                    247,
+                    244
+                ),
+                14f,
+                Color.rgb(
+                    181,
+                    224,
+                    216
+                )
+            )
+
         refreshBox.elevation = 2f
 
-        refreshBox.addView(label("🔄  ডাটা প্রতি ২০ সেকেন্ড পর পর অটো রিলোড হচ্ছে", 14f, TEAL, true))
-        lastRefreshText = label("সর্বশেষ আপডেট: ${currentTime()}", 13f, GRAY)
-        refreshBox.addView(lastRefreshText)
-        root.addView(refreshBox, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+        refreshBox.addView(
+            label(
+                "🔄  ডাটা প্রতি ২০ সেকেন্ড পর পর অটো রিফ্রেশ হচ্ছে",
+                14f,
+                TEAL,
+                true
+            )
+        )
+
+        lastRefreshText =
+            label(
+                "সর্বশেষ আপডেট: ${currentTime()}",
+                13f,
+                GRAY
+            )
+
+        refreshBox.addView(
+            lastRefreshText
+        )
+
+        root.addView(
+            refreshBox,
+            LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+        )
 
         root.addView(space(18))
 
@@ -801,21 +1105,91 @@ class MainActivity : Activity() {
             scrollScreen(root)
         )
 
-        lastRefreshText?.text = "সর্বশেষ আপডেট: ${currentTime()}"
-        refreshHandler.postDelayed(refreshRunnable, refreshIntervalMs)
+        // Start refresh ONLY after Dashboard is displayed.
+        startAutoRefresh()
     }
 
-    private fun currentTime(): String =
-        SimpleDateFormat("hh:mm:ss a", Locale.getDefault()).format(Date())
+    // =========================================================
+    // START AUTO REFRESH
+    // =========================================================
+
+    private fun startAutoRefresh() {
+
+        stopAutoRefresh()
+
+        if (
+            currentScreen !=
+            Screen.DASHBOARD
+        ) {
+            return
+        }
+
+        refreshHandler.postDelayed(
+            refreshRunnable,
+            refreshIntervalMs
+        )
+    }
+
+    // =========================================================
+    // STOP AUTO REFRESH
+    // =========================================================
+
+    private fun stopAutoRefresh() {
+
+        refreshHandler.removeCallbacks(
+            refreshRunnable
+        )
+    }
+
+    // =========================================================
+    // DASHBOARD REFRESH
+    // =========================================================
 
     private fun refreshDashboardData() {
-        // Re-read locally stored account/session data and refresh the visible status.
-        // When Firebase is connected later, this is the single hook to replace with a Firestore snapshot read.
-        currentUsername = pref.getString("current_user", currentUsername) ?: currentUsername
-        currentRole = pref.getString("current_role", currentRole) ?: currentRole
-        lastRefreshText?.text = "সর্বশেষ আপডেট: ${currentTime()}"
-        // Rebuild the dashboard so serial counts reflect newly saved records.
-        if (dashboardVisible) showDashboard()
+
+        // VERY IMPORTANT:
+        // Never refresh if user is not currently on Dashboard.
+
+        if (
+            currentScreen !=
+            Screen.DASHBOARD
+        ) {
+            return
+        }
+
+        currentUsername =
+            pref.getString(
+                "current_user",
+                currentUsername
+            ) ?: currentUsername
+
+        currentRole =
+            pref.getString(
+                "current_role",
+                currentRole
+            ) ?: currentRole
+
+        /*
+         * Rebuild Dashboard ONLY because the user
+         * is actually on Dashboard.
+         *
+         * If the user is on Add Serial, this function
+         * will never run.
+         */
+
+        showDashboard()
+    }
+
+    // =========================================================
+    // CURRENT TIME
+    // =========================================================
+
+    private fun currentTime(): String {
+
+        return SimpleDateFormat(
+            "hh:mm:ss a",
+            Locale.getDefault()
+        ).format(Date())
     }
 
     // =========================================================
@@ -824,98 +1198,358 @@ class MainActivity : Activity() {
 
     private fun showAddSerial() {
 
-        if (currentUsername.isEmpty()) {
-            toast("আগে Login করুন")
+        // IMPORTANT:
+        // Stop Dashboard auto refresh immediately.
+        stopAutoRefresh()
+
+        // Change screen state BEFORE creating the page.
+        currentScreen =
+            Screen.ADD_SERIAL
+
+        if (
+            currentUsername.isEmpty()
+        ) {
+
+            toast(
+                "আগে Login করুন"
+            )
+
+            showLogin()
+
             return
         }
 
-        val root = verticalContainer()
-        root.setPadding(14, 18, 14, 28)
+        val root =
+            verticalContainer()
 
-        root.addView(label("➕ নতুন সিরিয়াল", 28f, DARK_BLUE, true))
-        root.addView(label("রোগীর তথ্য দিয়ে নতুন সিরিয়াল তৈরি করুন", 14f, GRAY))
+        root.setPadding(
+            14,
+            18,
+            14,
+            28
+        )
+
+        root.addView(
+            label(
+                "➕ নতুন সিরিয়াল",
+                28f,
+                DARK_BLUE,
+                true
+            )
+        )
+
+        root.addView(
+            label(
+                "রোগীর তথ্য দিয়ে নতুন সিরিয়াল তৈরি করুন",
+                14f,
+                GRAY
+            )
+        )
+
         root.addView(space(14))
 
-        val card = LinearLayout(this)
-        card.orientation = LinearLayout.VERTICAL
-        card.setPadding(14, 18, 14, 18)
-        card.background = background(WHITE, 20f, LIGHT_BORDER)
+        val card =
+            LinearLayout(this)
+
+        card.orientation =
+            LinearLayout.VERTICAL
+
+        card.setPadding(
+            14,
+            18,
+            14,
+            18
+        )
+
+        card.background =
+            background(
+                WHITE,
+                20f,
+                LIGHT_BORDER
+            )
+
         card.elevation = 5f
 
-        val patient = input("রোগীর নাম")
-        val careOf = input("Care Of / অভিভাবকের নাম")
-        val doctor = input("ডাক্তারের নাম")
-
-        card.addView(label("রোগীর নাম", 15f, DARK_BLUE, true))
-        card.addView(patient)
-        card.addView(label("Care Of", 15f, DARK_BLUE, true))
-        card.addView(careOf)
-        card.addView(label("ডাক্তার", 15f, DARK_BLUE, true))
-        card.addView(doctor)
-
-        card.addView(space(8))
-        card.addView(label("সিরিয়ালটি তৈরি হবে আপনার Login করা নামের অধীনে:", 13f, GRAY))
-        card.addView(label("$currentUsername  •  $currentRole", 17f, TEAL, true))
-        card.addView(space(8))
-
-        card.addView(actionButton("✅   সিরিয়াল তৈরি করুন", GREEN, 64) {
-            saveSerial(
-                patient.text.toString().trim(),
-                careOf.text.toString().trim(),
-                doctor.text.toString().trim()
+        val patient =
+            input(
+                "রোগীর নাম"
             )
-        })
 
-        root.addView(card)
+        val careOf =
+            input(
+                "Care Of / অভিভাবকের নাম"
+            )
+
+        val doctor =
+            input(
+                "ডাক্তারের নাম"
+            )
+
+        card.addView(
+            label(
+                "রোগীর নাম",
+                15f,
+                DARK_BLUE,
+                true
+            )
+        )
+
+        card.addView(
+            patient
+        )
+
+        card.addView(
+            label(
+                "Care Of",
+                15f,
+                DARK_BLUE,
+                true
+            )
+        )
+
+        card.addView(
+            careOf
+        )
+
+        card.addView(
+            label(
+                "ডাক্তার",
+                15f,
+                DARK_BLUE,
+                true
+            )
+        )
+
+        card.addView(
+            doctor
+        )
+
+        card.addView(space(8))
+
+        card.addView(
+            label(
+                "সিরিয়ালটি তৈরি হবে আপনার Login করা নামের অধীনে:",
+                13f,
+                GRAY
+            )
+        )
+
+        card.addView(
+            label(
+                "$currentUsername  •  $currentRole",
+                17f,
+                TEAL,
+                true
+            )
+        )
+
+        card.addView(space(8))
+
+        card.addView(
+            actionButton(
+                "✅   সিরিয়াল তৈরি করুন",
+                GREEN,
+                64
+            ) {
+
+                saveSerial(
+                    patient.text
+                        .toString()
+                        .trim(),
+
+                    careOf.text
+                        .toString()
+                        .trim(),
+
+                    doctor.text
+                        .toString()
+                        .trim()
+                )
+            }
+        )
+
+        root.addView(
+            card
+        )
+
         root.addView(space(14))
-        root.addView(actionButton("←   Dashboard-এ ফিরে যান", BLUE) { showDashboard() })
 
-        setContentView(scrollScreen(root))
+        root.addView(
+            actionButton(
+                "←   Dashboard-এ ফিরে যান",
+                BLUE
+            ) {
+
+                showDashboard()
+            }
+        )
+
+        setContentView(
+            scrollScreen(root)
+        )
     }
 
-    private fun saveSerial(patient: String, careOf: String, doctor: String) {
-        if (patient.isEmpty()) { toast("রোগীর নাম লিখুন"); return }
-        if (doctor.isEmpty()) { toast("ডাক্তারের নাম লিখুন"); return }
+    // =========================================================
+    // SAVE SERIAL
+    // =========================================================
 
-        val today = SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(Date())
+    private fun saveSerial(
+        patient: String,
+        careOf: String,
+        doctor: String
+    ) {
+
+        if (patient.isEmpty()) {
+
+            toast(
+                "রোগীর নাম লিখুন"
+            )
+
+            return
+        }
+
+        if (doctor.isEmpty()) {
+
+            toast(
+                "ডাক্তারের নাম লিখুন"
+            )
+
+            return
+        }
+
+        val today =
+            SimpleDateFormat(
+                "yyyyMMdd",
+                Locale.getDefault()
+            ).format(Date())
+
         var next = 1
-        for (key in pref.all.keys) {
-            if (key.startsWith(serialPrefix + today + "_")) {
-                val n = key.substringAfterLast("_").toIntOrNull() ?: 0
-                if (n >= next) next = n + 1
+
+        for (
+            key in pref.all.keys
+        ) {
+
+            if (
+                key.startsWith(
+                    serialPrefix +
+                    today +
+                    "_"
+                )
+            ) {
+
+                val n =
+                    key.substringAfterLast(
+                        "_"
+                    ).toIntOrNull()
+                        ?: 0
+
+                if (
+                    n >= next
+                ) {
+
+                    next = n + 1
+                }
             }
         }
 
-        val key = serialPrefix + today + "_" + next
-        val value = listOf(
-            patient,
-            careOf,
-            doctor,
-            "Waiting",
-            currentUsername,
-            currentRole,
-            currentTime()
-        ).joinToString("||")
+        val key =
+            serialPrefix +
+            today +
+            "_" +
+            next
 
-        pref.edit().putString(key, value).apply()
-        toast("সিরিয়াল #$next তৈরি হয়েছে — $currentUsername")
+        val value =
+            listOf(
+                patient,
+                careOf,
+                doctor,
+                "Waiting",
+                currentUsername,
+                currentRole,
+                currentTime()
+            ).joinToString("||")
+
+        pref.edit()
+            .putString(
+                key,
+                value
+            )
+            .apply()
+
+        toast(
+            "সিরিয়াল #$next তৈরি হয়েছে — $currentUsername"
+        )
+
         showTotalSerial()
     }
 
-    private fun readSerials(): List<SerialRecord> {
-        val result = mutableListOf<SerialRecord>()
-        val today = SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(Date())
+    // =========================================================
+    // READ SERIALS
+    // =========================================================
 
-        for (key in pref.all.keys.sorted()) {
-            if (!key.startsWith(serialPrefix + today + "_")) continue
-            val number = key.substringAfterLast("_").toIntOrNull() ?: continue
-            val raw = pref.getString(key, "") ?: continue
-            val parts = raw.split("||")
-            if (parts.size >= 7) {
-                result.add(SerialRecord(number, parts[0], parts[1], parts[2], parts[3], parts[4], parts[5], parts[6]))
+    private fun readSerials():
+            List<SerialRecord> {
+
+        val result =
+            mutableListOf<SerialRecord>()
+
+        val today =
+            SimpleDateFormat(
+                "yyyyMMdd",
+                Locale.getDefault()
+            ).format(Date())
+
+        for (
+            key in pref.all.keys.sorted()
+        ) {
+
+            if (
+                !key.startsWith(
+                    serialPrefix +
+                    today +
+                    "_"
+                )
+            ) {
+                continue
+            }
+
+            val number =
+                key.substringAfterLast(
+                    "_"
+                ).toIntOrNull()
+                    ?: continue
+
+            val raw =
+                pref.getString(
+                    key,
+                    ""
+                ) ?: continue
+
+            val parts =
+                raw.split("||")
+
+            if (
+                parts.size >= 7
+            ) {
+
+                result.add(
+                    SerialRecord(
+                        number,
+                        parts[0],
+                        parts[1],
+                        parts[2],
+                        parts[3],
+                        parts[4],
+                        parts[5],
+                        parts[6]
+                    )
+                )
             }
         }
-        return result.sortedBy { it.number }
+
+        return result.sortedBy {
+            it.number
+        }
     }
 
     // =========================================================
@@ -923,41 +1557,191 @@ class MainActivity : Activity() {
     // =========================================================
 
     private fun showTotalSerial() {
-        val root = verticalContainer()
-        root.setPadding(12, 18, 12, 28)
-        val records = readSerials()
 
-        root.addView(label("📋 আজকের মোট সিরিয়াল", 27f, DARK_BLUE, true))
-        root.addView(label("মোট ${records.size} জন", 17f, TEAL, true))
+        // IMPORTANT:
+        // Stop Dashboard auto refresh.
+        stopAutoRefresh()
+
+        currentScreen =
+            Screen.TOTAL_SERIAL
+
+        val root =
+            verticalContainer()
+
+        root.setPadding(
+            12,
+            18,
+            12,
+            28
+        )
+
+        val records =
+            readSerials()
+
+        root.addView(
+            label(
+                "📋 আজকের মোট সিরিয়াল",
+                27f,
+                DARK_BLUE,
+                true
+            )
+        )
+
+        root.addView(
+            label(
+                "মোট ${records.size} জন",
+                17f,
+                TEAL,
+                true
+            )
+        )
+
         root.addView(space(10))
 
-        if (records.isEmpty()) {
-            root.addView(label("আজ এখনো কোনো সিরিয়াল তৈরি হয়নি", 16f, GRAY))
-        } else {
-            records.forEach { r ->
-                val card = LinearLayout(this)
-                card.orientation = LinearLayout.VERTICAL
-                card.setPadding(16, 12, 16, 12)
-                card.background = background(WHITE, 16f, LIGHT_BORDER)
-                card.elevation = 2f
-                val params = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-                params.setMargins(6, 5, 6, 5)
-                card.layoutParams = params
+        if (
+            records.isEmpty()
+        ) {
 
-                card.addView(label("সিরিয়াল #${r.number}   •   ${r.status}", 19f, BLUE, true))
-                card.addView(label("👤 ${r.patient}", 17f, DARK, true))
-                card.addView(label("Care Of: ${if (r.careOf.isEmpty()) "—" else r.careOf}", 14f, GRAY))
-                card.addView(label("ডাক্তার: ${r.doctor}", 15f, DARK))
-                card.addView(label("✍ দিয়েছেন: ${r.createdBy} (${r.createdRole})", 14f, TEAL, true))
-                card.addView(label("সময়: ${r.createdAt}", 12f, GRAY))
-                root.addView(card)
+            root.addView(
+                label(
+                    "আজ এখনো কোনো সিরিয়াল তৈরি হয়নি",
+                    16f,
+                    GRAY
+                )
+            )
+
+        } else {
+
+            records.forEach { r ->
+
+                val card =
+                    LinearLayout(this)
+
+                card.orientation =
+                    LinearLayout.VERTICAL
+
+                card.setPadding(
+                    16,
+                    12,
+                    16,
+                    12
+                )
+
+                card.background =
+                    background(
+                        WHITE,
+                        16f,
+                        LIGHT_BORDER
+                    )
+
+                card.elevation = 2f
+
+                val params =
+                    LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                    )
+
+                params.setMargins(
+                    6,
+                    5,
+                    6,
+                    5
+                )
+
+                card.layoutParams =
+                    params
+
+                card.addView(
+                    label(
+                        "সিরিয়াল #${r.number}   •   ${r.status}",
+                        19f,
+                        BLUE,
+                        true
+                    )
+                )
+
+                card.addView(
+                    label(
+                        "👤 ${r.patient}",
+                        17f,
+                        DARK,
+                        true
+                    )
+                )
+
+                card.addView(
+                    label(
+                        "Care Of: ${
+                            if (
+                                r.careOf.isEmpty()
+                            )
+                                "—"
+                            else
+                                r.careOf
+                        }",
+                        14f,
+                        GRAY
+                    )
+                )
+
+                card.addView(
+                    label(
+                        "ডাক্তার: ${r.doctor}",
+                        15f,
+                        DARK
+                    )
+                )
+
+                // WHO CREATED THE SERIAL
+                card.addView(
+                    label(
+                        "✍ দিয়েছেন: ${r.createdBy} (${r.createdRole})",
+                        14f,
+                        TEAL,
+                        true
+                    )
+                )
+
+                card.addView(
+                    label(
+                        "সময়: ${r.createdAt}",
+                        12f,
+                        GRAY
+                    )
+                )
+
+                root.addView(
+                    card
+                )
             }
         }
 
         root.addView(space(12))
-        root.addView(actionButton("＋   নতুন সিরিয়াল", GREEN) { showAddSerial() })
-        root.addView(actionButton("←   Dashboard-এ ফিরে যান", BLUE) { showDashboard() })
-        setContentView(scrollScreen(root))
+
+        root.addView(
+            actionButton(
+                "＋   নতুন সিরিয়াল",
+                GREEN
+            ) {
+
+                showAddSerial()
+            }
+        )
+
+        root.addView(
+            actionButton(
+                "←   Dashboard-এ ফিরে যান",
+                BLUE
+            ) {
+
+                showDashboard()
+            }
+        )
+
+        setContentView(
+            scrollScreen(root)
+        )
     }
 
     // =========================================================
@@ -971,29 +1755,47 @@ class MainActivity : Activity() {
         color: Int
     ): LinearLayout {
 
-        val card = LinearLayout(this)
+        val card =
+            LinearLayout(this)
 
-        card.orientation = LinearLayout.VERTICAL
-        card.gravity = Gravity.CENTER
-        card.setPadding(8, 12, 8, 12)
+        card.orientation =
+            LinearLayout.VERTICAL
 
-        card.background = background(
-            WHITE,
-            16f,
-            LIGHT_BORDER
+        card.gravity =
+            Gravity.CENTER
+
+        card.setPadding(
+            8,
+            12,
+            8,
+            12
         )
+
+        card.background =
+            background(
+                WHITE,
+                16f,
+                LIGHT_BORDER
+            )
 
         card.elevation = 3f
 
-        val params = LinearLayout.LayoutParams(
-            0,
-            118,
-            1f
+        val params =
+            LinearLayout.LayoutParams(
+                0,
+                118,
+                1f
+            )
+
+        params.setMargins(
+            4,
+            4,
+            4,
+            4
         )
 
-        params.setMargins(4, 4, 4, 4)
-
-        card.layoutParams = params
+        card.layoutParams =
+            params
 
         card.addView(
             label(
@@ -1031,13 +1833,31 @@ class MainActivity : Activity() {
 
     private fun showAdminPanel() {
 
-        if (!currentRole.equals("Admin", true)) {
+        // IMPORTANT:
+        // Stop Dashboard auto refresh.
+        stopAutoRefresh()
 
-            toast("শুধুমাত্র Admin এই পেজ ব্যবহার করতে পারবেন")
+        currentScreen =
+            Screen.ADMIN_PANEL
+
+        if (
+            !currentRole.equals(
+                "Admin",
+                true
+            )
+        ) {
+
+            toast(
+                "শুধুমাত্র Admin এই পেজ ব্যবহার করতে পারবেন"
+            )
+
+            showDashboard()
+
             return
         }
 
-        val root = verticalContainer()
+        val root =
+            verticalContainer()
 
         root.addView(
             label(
@@ -1058,43 +1878,60 @@ class MainActivity : Activity() {
 
         root.addView(space(12))
 
-        val username = input(
-            "নতুন Username"
+        val username =
+            input(
+                "নতুন Username"
+            )
+
+        val password =
+            input(
+                "নতুন Password",
+                true
+            )
+
+        root.addView(
+            username
         )
 
-        val password = input(
-            "নতুন Password",
-            true
+        root.addView(
+            password
         )
 
-        root.addView(username)
-        root.addView(password)
+        val roleSpinner =
+            Spinner(this)
 
-        val roleSpinner = Spinner(this)
+        val roles =
+            arrayOf(
+                "Operator",
+                "User"
+            )
 
-        val roles = arrayOf(
-            "Operator",
-            "User"
-        )
-
-        val adapter = ArrayAdapter(
-            this,
-            android.R.layout.simple_spinner_item,
-            roles
-        )
+        val adapter =
+            ArrayAdapter(
+                this,
+                android.R.layout.simple_spinner_item,
+                roles
+            )
 
         adapter.setDropDownViewResource(
             android.R.layout.simple_spinner_dropdown_item
         )
 
-        roleSpinner.adapter = adapter
+        roleSpinner.adapter =
+            adapter
 
-        val spinnerParams = LinearLayout.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            62
+        val spinnerParams =
+            LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                62
+            )
+
+        spinnerParams.setMargins(
+            8,
+            6,
+            8,
+            6
         )
-
-        spinnerParams.setMargins(8, 6, 8, 6)
 
         root.addView(
             roleSpinner,
@@ -1110,9 +1947,16 @@ class MainActivity : Activity() {
             ) {
 
                 createUser(
-                    username.text.toString().trim(),
-                    password.text.toString(),
-                    roleSpinner.selectedItem.toString()
+                    username.text
+                        .toString()
+                        .trim(),
+
+                    password.text
+                        .toString(),
+
+                    roleSpinner
+                        .selectedItem
+                        .toString()
                 )
             }
         )
@@ -1160,30 +2004,56 @@ class MainActivity : Activity() {
     ) {
 
         if (username.isEmpty()) {
-            toast("Username দিন")
-            return
-        }
 
-        if (password.length < 4) {
-            toast("Password কমপক্ষে ৪ অক্ষরের হতে হবে")
+            toast(
+                "Username দিন"
+            )
+
             return
         }
 
         if (
-            pref.contains("user_$username")
+            password.length < 4
         ) {
 
-            toast("এই Username আগে থেকেই আছে")
+            toast(
+                "Password কমপক্ষে ৪ অক্ষরের হতে হবে"
+            )
+
+            return
+        }
+
+        if (
+            pref.contains(
+                "user_$username"
+            )
+        ) {
+
+            toast(
+                "এই Username আগে থেকেই আছে"
+            )
+
             return
         }
 
         pref.edit()
-            .putString("user_$username", username)
-            .putString("pass_$username", hashPassword(password))
-            .putString("role_$username", role)
+            .putString(
+                "user_$username",
+                username
+            )
+            .putString(
+                "pass_$username",
+                hashPassword(password)
+            )
+            .putString(
+                "role_$username",
+                role
+            )
             .apply()
 
-        toast("$role সফলভাবে তৈরি হয়েছে")
+        toast(
+            "$role সফলভাবে তৈরি হয়েছে"
+        )
 
         showAdminPanel()
     }
@@ -1196,16 +2066,26 @@ class MainActivity : Activity() {
         root: LinearLayout
     ) {
 
-        val all = pref.all
+        val all =
+            pref.all
 
         var count = 0
 
-        for (key in all.keys) {
+        for (
+            key in all.keys
+        ) {
 
-            if (key.startsWith("user_")) {
+            if (
+                key.startsWith(
+                    "user_"
+                )
+            ) {
 
                 val username =
-                    pref.getString(key, "") ?: ""
+                    pref.getString(
+                        key,
+                        ""
+                    ) ?: ""
 
                 val role =
                     pref.getString(
@@ -1215,15 +2095,20 @@ class MainActivity : Activity() {
 
                 if (
                     username.isNotEmpty() &&
-                    !username.equals("admin", true)
+                    !username.equals(
+                        "admin",
+                        true
+                    )
                 ) {
 
-                    val card = LinearLayout(this)
+                    val card =
+                        LinearLayout(this)
 
                     card.orientation =
                         LinearLayout.HORIZONTAL
 
-                    card.gravity = Gravity.CENTER_VERTICAL
+                    card.gravity =
+                        Gravity.CENTER_VERTICAL
 
                     card.setPadding(
                         14,
@@ -1232,11 +2117,12 @@ class MainActivity : Activity() {
                         8
                     )
 
-                    card.background = background(
-                        WHITE,
-                        14f,
-                        LIGHT_BORDER
-                    )
+                    card.background =
+                        background(
+                            WHITE,
+                            14f,
+                            LIGHT_BORDER
+                        )
 
                     val params =
                         LinearLayout.LayoutParams(
@@ -1251,14 +2137,16 @@ class MainActivity : Activity() {
                         4
                     )
 
-                    card.layoutParams = params
+                    card.layoutParams =
+                        params
 
-                    val info = label(
-                        "$username\nRole: $role",
-                        14f,
-                        DARK,
-                        true
-                    )
+                    val info =
+                        label(
+                            "$username\nRole: $role",
+                            14f,
+                            DARK,
+                            true
+                        )
 
                     val infoParams =
                         LinearLayout.LayoutParams(
@@ -1295,7 +2183,9 @@ class MainActivity : Activity() {
 
                     delete.setOnClickListener {
 
-                        deleteUser(username)
+                        deleteUser(
+                            username
+                        )
                     }
 
                     card.addView(
@@ -1306,14 +2196,18 @@ class MainActivity : Activity() {
                         )
                     )
 
-                    root.addView(card)
+                    root.addView(
+                        card
+                    )
 
                     count++
                 }
             }
         }
 
-        if (count == 0) {
+        if (
+            count == 0
+        ) {
 
             root.addView(
                 label(
@@ -1329,20 +2223,39 @@ class MainActivity : Activity() {
     // DELETE USER
     // =========================================================
 
-    private fun deleteUser(username: String) {
+    private fun deleteUser(
+        username: String
+    ) {
 
-        if (username.equals("admin", true)) {
-            toast("Admin account মুছা যাবে না")
+        if (
+            username.equals(
+                "admin",
+                true
+            )
+        ) {
+
+            toast(
+                "Admin account মুছা যাবে না"
+            )
+
             return
         }
 
         pref.edit()
-            .remove("user_$username")
-            .remove("pass_$username")
-            .remove("role_$username")
+            .remove(
+                "user_$username"
+            )
+            .remove(
+                "pass_$username"
+            )
+            .remove(
+                "role_$username"
+            )
             .apply()
 
-        toast("$username মুছে ফেলা হয়েছে")
+        toast(
+            "$username মুছে ফেলা হয়েছে"
+        )
 
         showAdminPanel()
     }
@@ -1353,19 +2266,30 @@ class MainActivity : Activity() {
 
     private fun logout() {
 
-        dashboardVisible = false
-        refreshHandler.removeCallbacks(refreshRunnable)
+        stopAutoRefresh()
+
+        currentScreen =
+            Screen.LOGIN
 
         pref.edit()
-            .putBoolean("logged_in", false)
-            .remove("current_user")
-            .remove("current_role")
+            .putBoolean(
+                "logged_in",
+                false
+            )
+            .remove(
+                "current_user"
+            )
+            .remove(
+                "current_role"
+            )
             .apply()
 
         currentUsername = ""
         currentRole = ""
 
-        toast("Logout সফল হয়েছে")
+        toast(
+            "Logout সফল হয়েছে"
+        )
 
         showLogin()
     }
@@ -1382,14 +2306,21 @@ class MainActivity : Activity() {
 
             val bytes =
                 MessageDigest
-                    .getInstance("SHA-256")
-                    .digest(password.toByteArray())
+                    .getInstance(
+                        "SHA-256"
+                    )
+                    .digest(
+                        password.toByteArray()
+                    )
 
             bytes.joinToString("") {
+
                 "%02x".format(it)
             }
 
-        } catch (e: Exception) {
+        } catch (
+            e: Exception
+        ) {
 
             password
         }
@@ -1411,37 +2342,87 @@ class MainActivity : Activity() {
     }
 
     // =========================================================
-    // BACK BUTTON
+    // PAUSE
     // =========================================================
 
     override fun onPause() {
+
         super.onPause()
-        refreshHandler.removeCallbacks(refreshRunnable)
+
+        // Stop timer while app is not active.
+        stopAutoRefresh()
     }
 
+    // =========================================================
+    // RESUME
+    // =========================================================
+
     override fun onResume() {
+
         super.onResume()
-        if (dashboardVisible && currentUsername.isNotEmpty()) {
-            refreshDashboardData()
-            refreshHandler.removeCallbacks(refreshRunnable)
-            refreshHandler.postDelayed(refreshRunnable, refreshIntervalMs)
+
+        /*
+         * IMPORTANT:
+         *
+         * If user is on Dashboard,
+         * restart Dashboard refresh.
+         *
+         * If user is on Add Serial,
+         * Total Serial or Admin Panel,
+         * DO NOT refresh or navigate anywhere.
+         */
+
+        if (
+            currentScreen ==
+            Screen.DASHBOARD &&
+            currentUsername.isNotEmpty()
+        ) {
+
+            lastRefreshText?.text =
+                "সর্বশেষ আপডেট: ${currentTime()}"
+
+            startAutoRefresh()
         }
     }
 
+    // =========================================================
+    // DESTROY
+    // =========================================================
+
     override fun onDestroy() {
-        refreshHandler.removeCallbacks(refreshRunnable)
+
+        stopAutoRefresh()
+
         super.onDestroy()
     }
 
+    // =========================================================
+    // BACK BUTTON
+    // =========================================================
+
+    @Suppress("DEPRECATION")
     override fun onBackPressed() {
 
-        if (currentRole.isNotEmpty()) {
+        when (currentScreen) {
 
-            showDashboard()
+            Screen.ADD_SERIAL,
+            Screen.TOTAL_SERIAL,
+            Screen.ADMIN_PANEL -> {
 
-        } else {
+                showDashboard()
+            }
 
-            super.onBackPressed()
+            Screen.DASHBOARD -> {
+
+                // Keep the previous behavior:
+                // Back on Dashboard does not logout.
+                super.onBackPressed()
+            }
+
+            Screen.LOGIN -> {
+
+                super.onBackPressed()
+            }
         }
     }
 }
