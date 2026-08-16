@@ -1005,7 +1005,7 @@ class MainActivity : Activity() {
         MessageDigest.getInstance("SHA-256").digest(password.toByteArray()).joinToString("") { "%02x".format(it) }
     } catch (_: Exception) { password }
 
-    private fun snapshotToSerialRecord(snapshot: DataSnapshot, dateKey: String): SerialRecord? {
+    private fun snapshotToSerialRecord(snapshot: com.google.firebase.database.DataSnapshot, dateKey: String): SerialRecord? {
         val number = snapshot.child("number").getValue(Int::class.java) ?: return null
         return SerialRecord(
             id = snapshot.key ?: number.toString(),
