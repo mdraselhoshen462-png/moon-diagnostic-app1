@@ -761,7 +761,7 @@ class MainActivity : Activity() {
             override fun onDataChange(snapshot: DataSnapshot) {
                 serials.clear()
                 for (child in snapshot.children) {
-                    val r = child.toSerialRecord(dateKey)
+                    val r = snapshotToSerialRecord(child, dateKey)
                     if (r != null) serials.add(r)
                 }
                 serials.sortBy { it.number }
@@ -1005,21 +1005,21 @@ class MainActivity : Activity() {
         MessageDigest.getInstance("SHA-256").digest(password.toByteArray()).joinToString("") { "%02x".format(it) }
     } catch (_: Exception) { password }
 
-    private fun DataSnapshot.toSerialRecord(dateKey: String): SerialRecord? {
-        val number = child("number").getValue(Int::class.java) ?: return null
+    private fun snapshotToSerialRecord(snapshot: com.google.firebase.database.DataSnapshot, dateKey: String): SerialRecord? {
+        val number = snapshot.child("number").getValue(Int::class.java) ?: return null
         return SerialRecord(
-            id = key ?: number.toString(),
+            id = snapshot.key ?: number.toString(),
             number = number,
             dateKey = dateKey,
-            patient = child("patient").getValue(String::class.java) ?: "",
-            careOf = child("careOf").getValue(String::class.java) ?: "",
-            doctor = child("doctor").getValue(String::class.java) ?: "",
-            status = child("status").getValue(String::class.java) ?: "Waiting",
-            createdBy = child("createdBy").getValue(String::class.java) ?: "",
-            createdRole = child("createdRole").getValue(String::class.java) ?: "",
-            createdAt = child("createdAt").getValue(String::class.java) ?: "",
-            completedBy = this.child("completedBy").getValue(String::class.java) ?: "",
-            completedAt = this.child("completedAt").getValue(String::class.java) ?: ""
+            patient = snapshot.child("patient").getValue(String::class.java) ?: "",
+            careOf = snapshot.child("careOf").getValue(String::class.java) ?: "",
+            doctor = snapshot.child("doctor").getValue(String::class.java) ?: "",
+            status = snapshot.child("status").getValue(String::class.java) ?: "Waiting",
+            createdBy = snapshot.child("createdBy").getValue(String::class.java) ?: "",
+            createdRole = snapshot.child("createdRole").getValue(String::class.java) ?: "",
+            createdAt = snapshot.child("createdAt").getValue(String::class.java) ?: "",
+            completedBy = snapshot.child("completedBy").getValue(String::class.java) ?: "",
+            completedAt = snapshot.child("completedAt").getValue(String::class.java) ?: ""
         )
     }
 
