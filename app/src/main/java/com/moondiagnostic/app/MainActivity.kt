@@ -1018,8 +1018,8 @@ class MainActivity : Activity() {
             createdBy = child("createdBy").getValue(String::class.java) ?: "",
             createdRole = child("createdRole").getValue(String::class.java) ?: "",
             createdAt = child("createdAt").getValue(String::class.java) ?: "",
-            completedBy = child("completedBy").getValue(String::class.java) ?: "",
-            completedAt = child("completedAt").getValue(String::class.java) ?: ""
+            completedBy = this.child("completedBy").getValue(String::class.java) ?: "",
+            completedAt = this.child("completedAt").getValue(String::class.java) ?: ""
         )
     }
 
